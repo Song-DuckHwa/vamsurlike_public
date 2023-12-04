@@ -15,8 +15,7 @@ namespace game
 
         Vector2 attack_dir;
 
-        CharacterData target;
-        PC pc_compo;
+        NPC target;
 
         public GameObject attack_hitbox;
 
@@ -24,15 +23,27 @@ namespace game
 
         public SkillManager skillmgr = new SkillManager();
 
-        // Start is called before the first frame update
-        void Start()
+        public SpriteRenderer sprite;
+
+        private void Awake()
         {
-            //target = GameManager.charmgr.find( 0 );
+            sprite = GetComponent< SpriteRenderer >();
+        }
+
+        private void OnEnable()
+        {
+            current_hp = hp;
+
             target = GameManager.mainch;
             if( target == null )
                 return;
 
-            pc_compo = (PC)target.script;
+            sprite.color = Color.white;
+        }
+
+        // Start is called before the first frame update
+        void Start()
+        {
             col = GetComponent<CircleCollider2D>();
 
             collide_mask |= (int)CollideMask.PC;
@@ -46,8 +57,6 @@ namespace game
             compo = GetComponent<NPC>();
 
             spr = GetComponent< SpriteRenderer >();
-
-            current_hp = hp;
         }
 
         public virtual void setStat( Monster stat )
@@ -75,7 +84,7 @@ namespace game
         public virtual void moveWithRigidBody()
         {
             //move stop
-            if( target.gameobj == null )
+            if( target == null || target.gameObject == null )
             {
                 //if( rigidbody != null )
                     GetComponent<Rigidbody>().velocity = Vector3.zero;
@@ -83,7 +92,7 @@ namespace game
                 return;
             }
 
-            Vector3 dest = target.gameobj.transform.position;
+            Vector3 dest = target.transform.position;
             Vector3 current_pos = transform.position;
             Vector3 velocity = new Vector3( dest.x - current_pos.x, dest.y - current_pos.y );
             velocity.Normalize();
@@ -101,13 +110,14 @@ namespace game
         public virtual void moveWithoutRigidBody()
         {
             //move stop
-            if( target.gameobj == null )
+            //나중에 state로 관리하도록 수정해야 함
+            if( target == null || target.gameObject == null )
             {
                 move_speed = 0;
                 return;
             }
 
-            Vector3 dest = target.gameobj.transform.position;
+            Vector3 dest = target.transform.position;
             Vector3 current_pos = transform.position;
             Vector3 velocity = new Vector3( dest.x - current_pos.x, dest.y - current_pos.y );
             velocity.Normalize();
@@ -124,17 +134,20 @@ namespace game
         {
             if( collision.gameObject.CompareTag( "pc_attack" ) )
             {
-                takeDamage();
+                //takeDamage();
             }
         }
 
-        public virtual void takeDamage()
+        public virtual void takeDamage( GameObject hitter, int knockback_dist )
         {
             current_hp -= 10;
             if( current_hp <= 0 )
             {
                 die();
+                return;
             }
+
+            GameManager.collidefuncs.knockbackPosition( hitter, gameObject, knockback_dist );
         }
 
         public virtual void enemyCollide()
@@ -146,13 +159,31 @@ namespace game
         {
             GameManager.gamelogic.generateExpGem( uid, exp );
             GameManager.gamelogic.generateHealItem( uid );
-            Destroy( this.gameObject );
-            int stage_clear_key = 0;
-            GameManager.gamelogic.stage_clear_key_monsters.TryGetValue( uid, out stage_clear_key );
-            if( stage_clear_key == uid )
-                GameManager.gamelogic.stage_clear_key_monsters.Remove( uid );
 
-            GameManager.charmgr.delete( uid );
+            //잡으면 스테이지 클리어
+            if( GameManager.gamelogic.stage_clear_key_monsters.TryGetValue( uid, out int stage_clear_key ) == true )
+                if( stage_clear_key == uid )
+                    GameManager.gamelogic.stage_clear_key_monsters.Remove( uid );
+
+
+            target = null;
+            StartCoroutine( "DieAni" );
+        }
+
+        IEnumerator DieAni()
+        {
+            for( ; ; )
+            {
+                sprite.color = new Color( 255f, 255f, 255f, sprite.color.a - 0.1f );
+                if( sprite.color.a < 0 )
+                {
+                    release();
+                    GameManager.charmgr.delete( uid );
+                    StopCoroutine( "DieAni" );
+                }
+
+                yield return null;
+            }
         }
 
         void OnDrawGizmos()

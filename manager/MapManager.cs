@@ -1,209 +1,135 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.InputSystem;
 using UnityEngine.UIElements;
+using static UnityEngine.Rendering.DebugUI;
 
 namespace game
 {
     public class MapManager
     {
-        public GameObject tile;
+        //나중에 stage table로 빼서 받아오도록 변경해야 한다
+        public string map_prefab_address = "Assets/prefabs/map/tile.prefab";
         public CollideFuncs collide = new CollideFuncs();
 
-        public Dictionary< (int,int), GameObject > ins_tiles = new Dictionary< (int,int), GameObject >();
+        public List< Tile > tile_list = new List< Tile >();
 
-        public ( int, int ) pc_position = ( 0, 0 );
+        private const int CONST_TILE_WIDTH = 2;
+        private const int CONST_TILE_HEIGHT = 2;
 
         public void loadTile()
         {
-            string map_prefab_address = "Assets/prefabs/map/tile.prefab";
-            if( GameManager.prefabmgr.prefabs.ContainsKey( map_prefab_address ) == false )
+            destroyTileSet();
+
+            GameManager.prefabmgr.prefabs.TryGetValue( map_prefab_address, out GameObject obj );
+            if( obj == null )
             {
                 Debug.Log( "No has map" );
                 return;
             }
 
-
-            tile = GameManager.prefabmgr.prefabs[ map_prefab_address ];
-            destroyTileset();
-            ins_tiles = createNewTileset( pc_position.Item1, pc_position.Item2 );
+            init();
         }
 
-        public void Update()
+        public void init()
         {
             int i = 0;
-            List< (int, int) > key_arr = ins_tiles.Keys.ToList();
-            int loop_max = key_arr.Count;
-            for( ; i < loop_max ; ++i )
-            {
-                (int, int) key = key_arr[ i ];
-                GameObject tile = ins_tiles[ key ];
-                if( tile == null )
-                {
-                    Debug.Log( "Not has tile" );
-                    return;
-                }
-
-                Vector3 mainch_pos = GameManager.mainch.gameobj.transform.position;
-                float dist = Vector2.Distance( tile.transform.position, mainch_pos );
-                //magic
-                //사각형 대각선 길이로 체크
-                float diagonal = 512f * Mathf.Sqrt( 2f );
-                if( dist > diagonal )
-                    continue;
-
-                BoxCollider2D box = tile.GetComponent< BoxCollider2D >();
-
-                Rect rect = new Rect();
-                rect.xMin = tile.transform.position.x - (box.size.x * 0.5f);
-                rect.xMax = tile.transform.position.x + (box.size.x * 0.5f);
-                rect.yMin = tile.transform.position.y - (box.size.y * 0.5f);
-                rect.yMax = tile.transform.position.y + (box.size.y * 0.5f);
-
-                bool result = collide.pointToRectCollide( mainch_pos, rect );
-                if( result )
-                {
-                    (int, int) quadrant = calcQuadrant( tile.transform.position, box, mainch_pos );
-                    Dictionary< (int,int), GameObject > new_ins_tiles = createNewTileset( key.Item1, key.Item2, quadrant );
-
-                    destroyTileset();
-
-                    ins_tiles = new_ins_tiles;
-                    pc_position = key;
-
-                    return;
-                }
-            }
-        }
-
-        public Dictionary< (int,int), GameObject > createNewTileset( int center_x, int center_y )
-        {
-            Dictionary< (int,int), GameObject > new_ins_tiles = new Dictionary< (int,int), GameObject >();
-
-            int i = 0;
-            int loop_max_i = 3;
+            int loop_max_i = CONST_TILE_HEIGHT;
             for( ; i < loop_max_i ; ++i )
             {
                 int j = 0;
-                int loop_max_j = 3;
+                int loop_max_j = CONST_TILE_WIDTH;
                 for( ; j < loop_max_j ; ++j )
                 {
-                    int pos_x = (center_x - 1) + i;
-                    int pos_y = (center_y - 1) + j;
-                    GameObject ins_tile = GameObject.Instantiate( tile );
-                    Tile tile_compo = ins_tile.GetComponent< Tile >();
-                    tile_compo.position = ( pos_x, pos_y );
-                    ins_tile.transform.position = new Vector3( 1024f * pos_x, 1024f * pos_y, 0f );
+                    GameObject ins_tile = GameManager.poolmgr.instanceGet( map_prefab_address );
+                    Tile tile_script = ins_tile.GetComponent< Tile >();
+                    ins_tile.transform.position = new Vector3( 2048f * i, 2048f * j, 0f );
                     ins_tile.SetActive( true );
 
-                    new_ins_tiles.Add( ( pos_x, pos_y ), ins_tile );
+                    tile_list.Add( tile_script );
+
+                    tile_script.OnCollideStart += OnTileCollideStart;
+                    tile_script.OnCollideIng += OnTileCollideStart;
                 }
             }
-
-            return new_ins_tiles;
         }
 
-        public Dictionary< (int,int), GameObject > createNewTileset( int center_x, int center_y, (int, int) quadrant )
+        public void moveTileset( int chpos_quadrant, Vector2 main_tile_pos )
         {
-            if( quadrant.Item1 == 0 && quadrant.Item2 == 0 )
-                return createNewTileset( center_x, center_y );
+            int index = 0;
 
-            Dictionary< (int,int), GameObject > new_ins_tiles = new Dictionary< (int,int), GameObject >();
+            int offset_x = 0;
+            int offset_y = 0;
+            switch( chpos_quadrant )
+            {
+                case 1 :
+                    offset_x = 1;
+                    offset_y = 1;
+                    break;
+                case 2:
+                    offset_x = -1;
+                    offset_y = 1;
+                    break;
+                case 3 :
+                    offset_x = -1;
+                    offset_y = -1;
+                    break;
+                case 4 :
+                    offset_x = 1;
+                    offset_y = -1;
+                    break;
+                default :
+                    break;
+            }
 
             int i = 0;
-            int loop_max_i = 2;
+            int loop_max_i = CONST_TILE_HEIGHT;
             for( ; i < loop_max_i ; ++i )
             {
                 int j = 0;
-                int loop_max_j = 2;
+                int loop_max_j = CONST_TILE_WIDTH;
                 for( ; j < loop_max_j ; ++j )
                 {
-                    int pos_x = center_x + (i * quadrant.Item1);
-                    int pos_y = center_y + (j * quadrant.Item2);
-                    GameObject ins_tile = GameObject.Instantiate( tile );
-                    Tile tile_compo = ins_tile.GetComponent< Tile >();
-                    tile_compo.position = ( pos_x, pos_y );
-                    ins_tile.transform.position = new Vector3( 1024f * pos_x, 1024f * pos_y, 0f );
-                    ins_tile.SetActive( true );
+                    if( Vector2.Equals( main_tile_pos, (Vector2)tile_list[ index ].transform.position ) )
+                    {
+                        index++;
+                    }
 
-                    new_ins_tiles.Add( ( pos_x, pos_y ), ins_tile );
+                    float pos_x = main_tile_pos.x + ((offset_x * 2048f) * j);
+                    float pos_y = main_tile_pos.y + ((offset_y * 2048f) * i);
+
+                    if( Vector2.Equals( main_tile_pos, new Vector2( pos_x, pos_y ) ) )
+                    {
+                        continue;
+                    }
+
+                    tile_list[ index ].transform.position = new Vector3( pos_x, pos_y, 0f );
+                    index++;
                 }
             }
-
-            return new_ins_tiles;
         }
 
-        public void destroyTileset()
+        public void OnTileCollideStart( OnActionCollideArg eventArgs )
         {
-            int i = 0;
-            List< (int, int) > key_arr = ins_tiles.Keys.ToList();
-            int loop_max = key_arr.Count;
-            for( ; i < loop_max ; ++i )
+            //타일의 사분면 중 캐릭터는 어디에 있는가 찾아서 그에 따라 타일을 이동
+            Vector2 event_tile_pos = new Vector2( eventArgs.tile.transform.position.x, eventArgs.tile.transform.position.y );
+            moveTileset( eventArgs.quadrant, event_tile_pos );
+        }
+
+        public void destroyTileSet()
+        {
+            int i = tile_list.Count - 1;            
+            for( ; i > -1 ; --i )
             {
-                (int, int) key = key_arr[ i ];
-                Object.Destroy( ins_tiles[ key ].gameObject );
-                ins_tiles[ key ] = null;
+                tile_list[ i ].release();
+                tile_list.RemoveAt( i );
             }
-
-            ins_tiles.Clear();
         }
-
-        public (int, int) calcQuadrant( Vector3 rect_center_pos, BoxCollider2D box, Vector3 point )
-        {
-            Rect rt_rect = new Rect();
-            rt_rect.xMin = rect_center_pos.x;
-            rt_rect.xMax = rect_center_pos.x + (box.size.x * 0.5f);
-            rt_rect.yMin = rect_center_pos.y;
-            rt_rect.yMax = rect_center_pos.y + (box.size.y * 0.5f);
-            bool result = collide.pointToRectCollide( point, rt_rect );
-            if( result )
-                return ((int)RectQuadrantX.R, (int)RectQuadrantY.T );
-
-            Rect lt_rect = new Rect();
-            lt_rect.xMin = rect_center_pos.x - (box.size.x * 0.5f);
-            lt_rect.xMax = rect_center_pos.x;
-            lt_rect.yMin = rect_center_pos.y;
-            lt_rect.yMax = rect_center_pos.y + (box.size.y * 0.5f);
-            result = collide.pointToRectCollide( point, lt_rect );
-            if( result )
-                return ((int)RectQuadrantX.L, (int)RectQuadrantY.T );
-
-            Rect lb_rect = new Rect();
-            lb_rect.xMin = rect_center_pos.x - (box.size.x * 0.5f);
-            lb_rect.xMax = rect_center_pos.x;
-            lb_rect.yMin = rect_center_pos.y - (box.size.y * 0.5f);
-            lb_rect.yMax = rect_center_pos.y;
-            result = collide.pointToRectCollide( point, lb_rect );
-            if( result )
-                return ((int)RectQuadrantX.L, (int)RectQuadrantY.B );
-
-            Rect rb_rect = new Rect();
-            rb_rect.xMin = rect_center_pos.x;
-            rb_rect.xMax = rect_center_pos.x + (box.size.x * 0.5f);
-            rb_rect.yMin = rect_center_pos.y - (box.size.y * 0.5f);
-            rb_rect.yMax = rect_center_pos.y;
-            result = collide.pointToRectCollide( point, rb_rect );
-            if( result )
-                return ((int)RectQuadrantX.R, (int)RectQuadrantY.B );
-
-            return ((int)RectQuadrantX.NONE, (int)RectQuadrantY.NONE );
-        }
-    }
-
-    enum RectQuadrantX
-    {
-        NONE = 0,
-        R = 1,
-        L = -1,
-    }
-    enum RectQuadrantY
-    {
-        NONE = 0,
-        T = 1,
-        B = -1,
     }
 }

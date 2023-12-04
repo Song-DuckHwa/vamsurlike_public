@@ -22,10 +22,10 @@ namespace game
         private void Init()
         {
             pool = new ObjectPool< GameObject >(
-                OnCreate,
-                OnGet,
-                OnReturn,
-                OnDestroy,
+                OnCreate,       //create
+                null,          //get
+                OnRelease,       //release
+                OnDestroy,      //destroy
                 true, cap, pool_max );
         }
 
@@ -35,12 +35,7 @@ namespace game
             return obj;
         }
 
-        private void OnGet( GameObject obj )
-        {
-            obj.SetActive( true );
-        }
-
-        private void OnReturn( GameObject obj )
+        private void OnRelease( GameObject obj )
         {
             obj.SetActive( false );
         }
@@ -48,6 +43,11 @@ namespace game
         private void OnDestroy( GameObject obj )
         {
             Object.Destroy( obj );
+        }
+
+        public void release( GameObject obj )
+        {
+            pool.Release( obj );
         }
     }
 }

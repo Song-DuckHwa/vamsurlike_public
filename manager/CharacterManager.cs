@@ -7,24 +7,15 @@ using UnityEngine.UIElements;
 using static UnityEngine.RuleTile.TilingRuleOutput;
 
 namespace game
-{
-    public class CharacterData
-    {
-        public int uid;
-        public GameObject gameobj;
-        public Component script;
-    }
-
+{    
     public class CharacterManager
     {
         public static CharacterManager instance = null;
 
-        private Dictionary< int, CharacterData > char_dic = new Dictionary< int, CharacterData >();
+        private Dictionary< int, NPC > char_dic = new Dictionary< int, NPC >();
         private Dictionary< int, ExpGem > expgem_dic = new Dictionary< int, ExpGem >();
         private int current_uid;
         private CollideFuncs collidemgr = new CollideFuncs();
-
-        public ObjectPool expgem_pool;
 
         public void init()
         {
@@ -33,21 +24,10 @@ namespace game
             current_uid = 0;
         }
 
-        public void createExpGemPool()
+        public bool deleteExpGem( int expgem_uid )
         {
-            expgem_pool = new ObjectPool();
-            string skill_prefab_address = "Assets/prefabs/object/exp.prefab";
-
-            GameManager.prefabmgr.prefabs.TryGetValue( skill_prefab_address, out GameObject obj );
-            if( obj == null )
-                return;
-
-            expgem_pool.prefab = obj;
-        }
-
-        public void deleteExpGem()
-        {
-
+            bool result = expgem_dic.Remove( expgem_uid );
+            return result;
         }
 
         public void resetExpGem()
@@ -60,30 +40,26 @@ namespace game
                 int key_i = keys[ i ];
                 expgem_dic.TryGetValue( key_i, out ExpGem obj );
                 if( obj != null )
-                    obj.pool.Release( obj.gameObject );
+                    obj.release();
 
                 expgem_dic.Remove( key_i );
             }
         }
 
-        public CharacterData find( int uid )
+        public NPC find( int uid )
         {
-            CharacterData value = new CharacterData();
-            char_dic.TryGetValue( uid, out value );
+            char_dic.TryGetValue( uid, out NPC value );
 
             return value;
         }
 
-        public CharacterData add( GameObject obj )
+        public NPC add( GameObject obj )
         {
-            CharacterData set = new CharacterData();
-            set.uid = current_uid;
-            set.gameobj = obj;
-            set.script = obj.GetComponent<Entity>();
-            ((NPC)set.script).uid = current_uid;
-            char_dic.Add( current_uid, set );
+            NPC script = obj.GetComponent< NPC >();
+            script.uid = current_uid;
+            char_dic.Add( current_uid, script );
             current_uid++;
-            return set;
+            return script;
         }
 
         public bool delete( int uid )
@@ -112,10 +88,9 @@ namespace game
             for( ; i < loop_max ; ++i )
             {
                 int key_i = keys[ i ];
-                CharacterData obj = new CharacterData();
-                char_dic.TryGetValue( key_i, out obj );
-                if( obj != null )
-                    Object.Destroy( obj.gameobj );
+                char_dic.TryGetValue( key_i, out NPC ch );
+                if( ch != null )
+                    ch.release();
 
                 delete( key_i );
             }
@@ -134,12 +109,16 @@ namespace game
 
         public GameObject addExpGem( int exp )
         {
-            GameObject expgem = expgem_pool.pool.Get();
-            ExpGem expgem_compo = expgem.GetComponent< ExpGem >();
-            expgem_compo.pool = expgem_pool.pool;
-            expgem_compo.exp = exp;
+            GameObject expgem = GameManager.poolmgr.instanceGet( "Assets/prefabs/object/exp.prefab" );
+            if( expgem == null )
+                return null;
 
-            expgem_dic.Add( current_uid, expgem_compo );
+            ExpGem expgem_script = expgem.GetComponent< ExpGem >();
+            expgem_script.pool = GameManager.poolmgr.pools[ "Assets/prefabs/object/exp.prefab" ];
+            expgem_script.exp = exp;
+            expgem_script.uid = current_uid;
+
+            expgem_dic.Add( current_uid, expgem_script );
             current_uid++;
 
             return expgem;

@@ -12,6 +12,8 @@ namespace game
         public Dictionary< string, GameObject > prefabs = new Dictionary< string, GameObject >();
         public bool load_complete = false;
 
+        public List< Task< int > > task_list = new List< Task< int > >();
+
         public async Task start()
         {
             if( load_complete == true )
@@ -42,7 +44,7 @@ namespace game
             /*------map------ */
             keys.Add( "Assets/prefabs/map/tile.prefab" );
 
-            List< Task< int > > task_list = new List< Task< int > >();
+            //List< Task< int > > task_list = new List< Task< int > >();
 
             int i = 0;
             int loop_max = keys.Count;

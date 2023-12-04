@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -24,9 +25,6 @@ namespace game
         public SkillManager skillmgr_ = new SkillManager();
         public static SkillManager skillmgr => instance.skillmgr_;
 
-        public CharacterData mainch_;
-        public static CharacterData mainch => instance.mainch_;
-
         public GameLogic gamelogic_;
         public static GameLogic gamelogic => instance.gamelogic_;
 
@@ -38,6 +36,17 @@ namespace game
 
         public Camera main_camera_;
         public static Camera main_camera => instance.main_camera_;
+
+        public PoolManager poolmgr_ = new PoolManager();
+        public static PoolManager poolmgr => instance.poolmgr_;
+
+        public CollideFuncs collidefuncs_ = new CollideFuncs();
+        public static CollideFuncs collidefuncs => instance.collidefuncs_;
+
+
+
+        public PCMain mainch_;
+        public static PCMain mainch => instance.mainch_;
 
         public float res_v_half;
         public float res_h_half;
@@ -62,16 +71,34 @@ namespace game
 
         private async void init()
         {
+            //default 30frame
+            Application.targetFrameRate = 60;
+
             res_h_half = Camera.main.orthographicSize;
             res_v_half = res_h_half * Screen.width / Screen.height;
 
             //프리팹 로드가 끝날때 까지 대기
             await prefabmgr.start();
 
-            charmgr.init();
-            charmgr.createExpGemPool();
+            //prefab pool add
+            if( poolmgr.add_complete == false )
+            {
+                int i = 0;
+                List< string > key_list = prefabmgr.prefabs.Keys.ToList();
+                int loop_max = key_list.Count;
+                for( ; i < loop_max ; ++i )
+                {
+                    string key = key_list[ i ];
+                    poolmgr.addPool( key );
+                }
 
-            bool result = tablemgr.loadTable();
+                poolmgr.add_complete = true;
+            }
+
+            charmgr.init();
+
+            await tablemgr.loadTable();
+            bool result = tablemgr.load_complete;
             if( result )
                 SettingComplete();
         }
@@ -86,12 +113,12 @@ namespace game
 
                 if( input == Vector2.zero )
                 {
-                    ((PC)mainch.script).velocity = 0;
+                    mainch.velocity = 0;
                     return;
                 }
 
-                ((PC)mainch.script).direction = new Vector3( input.x, input.y, 0 );
-                ((PC)mainch.script).velocity = 1;
+                mainch.direction = new Vector3( input.x, input.y, 0 );
+                mainch.velocity = 1;
             }
         }
 

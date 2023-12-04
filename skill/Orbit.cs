@@ -8,6 +8,7 @@ namespace game
     {
         public float pos_deg;
         public int move_speed;
+        private int knockback_dist = 20;
 
         private void FixedUpdate()
         {
@@ -17,8 +18,6 @@ namespace game
         // Update is called once per frame
         void Update()
         {
-
-
             //데미지 주기 조절 생각해야함
             //이렇게 되면 업데이트 될때마다 공격함
             List< int > hitted_targets = GameManager.charmgr.attackCollideCheck( (CircleCollider2D)collider_compo );
@@ -28,25 +27,29 @@ namespace game
                 int loop_max = hitted_targets.Count;
                 for( ; i < loop_max ; ++i )
                 {
-                    CharacterData ch = GameManager.charmgr.find( hitted_targets[ i ] );
+                    NPC ch = GameManager.charmgr.find( hitted_targets[ i ] );
                     if( ch != null )
                     {
-                        ((NPC)ch.script).takeDamage();
+                        NPC actor = GameManager.charmgr.find( actor_uid );
+                        if( actor == null )
+                            return;
+
+                        ch.takeDamage( actor.gameObject, knockback_dist );
                     }
                 }
             }
         }
         public override bool active()
         {
-            destroyInsList();
-
-            CharacterData actor = GameManager.charmgr.find( actor_uid );
-            if( actor == null )
-                return true ;
-
-            GameManager.tablemgr.skill.data.TryGetValue( skill_index, out SkillDetailData table );
+            SkillDetailData table = getTableData();
             if( table == null )
                 return true;
+
+            destroyInsList();
+
+            NPC actor = GameManager.charmgr.find( actor_uid );
+            if( actor == null )
+                return true ;
 
             SkillLevelData table_level_data = table.level_data[ level - 1 ];
 
@@ -54,8 +57,10 @@ namespace game
             int loop_max = table_level_data.objcount;
             for( ; i < loop_max ; ++i )
             {
-                GameObject ins = Instantiate( gameObject );
-                ins_list.Add( ins );
+                GameObject ins = GameManager.poolmgr.instanceGet( table.asset_address );
+                if( ins == null )
+                    return true;
+
                 Orbit script = ins.GetComponent< Orbit >();
                 //magic
                 script.move_speed = 100;
@@ -70,9 +75,11 @@ namespace game
                 hitarea_pos.x = hitarea_dist * Mathf.Cos( rad );
                 hitarea_pos.y = hitarea_dist * Mathf.Sin( rad );
 
-                ins.transform.localPosition = hitarea_pos + actor.gameobj.transform.position;
-                ins.transform.SetParent( actor.gameobj.transform );
+                ins.transform.localPosition = hitarea_pos + actor.transform.position;
+                ins.transform.SetParent( actor.transform );
                 ins.SetActive( true );
+
+                ins_list.Add( script );
             }
 
             //magic

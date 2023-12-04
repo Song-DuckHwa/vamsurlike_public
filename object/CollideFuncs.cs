@@ -10,7 +10,7 @@ namespace game
     public class CollideFuncs
     {
         //원 - 원 충돌체크
-        public void check( Dictionary< int, CharacterData > char_dic )
+        public void check( Dictionary< int, NPC > char_dic )
         {
             //현재 방식으로는 앞에서 진행했던 오브젝트들 끼리의 중복체크가 일어나게 됨
             //list의 뒤에서부터 검사해서 end와 end - 1 부터 출발하여 비교하는 식으로 하면 중복이 없어짐
@@ -20,8 +20,7 @@ namespace game
             for( ; i < loop_max ; ++i )
             {
                 int key_i = keys[ i ];
-                CharacterData main = new CharacterData();
-                char_dic.TryGetValue( key_i, out main );
+                char_dic.TryGetValue( key_i, out NPC main );
                 if( main == null )
                     continue;
 
@@ -30,8 +29,7 @@ namespace game
                 for( ; j < loop_max_j ; ++j )
                 {
                     int key_j = keys[ j ];
-                    CharacterData target = new CharacterData();
-                    char_dic.TryGetValue( key_j, out target );
+                    char_dic.TryGetValue( key_j, out NPC target );
                     if( target == null )
                         continue;
 
@@ -39,55 +37,55 @@ namespace game
                         continue;
 
                     //충돌 마스크 체크 해서 충돌하지 않는 개체들이면 스킵
-                    if( (((NPC)main.script).collide_mask & ((NPC)target.script).collide_type) == 0 )
+                    if( (main.collide_mask & target.collide_type) == 0 )
                         continue;
 
-                    float dist = Vector3.Distance( main.gameobj.transform.position, target.gameobj.transform.position );
+                    float dist = Vector3.Distance( main.transform.position, target.transform.position );
                     //magic
                     if( dist > 50 )
                         continue;
 
-                    Vector3 ray_dir = target.gameobj.transform.position - main.gameobj.transform.position;
+                    Vector3 ray_dir = target.transform.position - main.transform.position;
                     ray_dir.Normalize();
 
                     Vector3 ray_start_pos = ray_dir;
-                    ray_start_pos += main.gameobj.transform.position;
+                    ray_start_pos += main.transform.position;
 
                     RaycastHit2D result = Physics2D.Raycast( ray_start_pos, ray_dir, 25f );
                     if( result.collider )
                     {
-                        ((NPC)main.script).enemyCollide();
-                        ((NPC)target.script).enemyCollide();
+                        main.enemyCollide();
+                        target.enemyCollide();
 
-                        rollbackPosition( main.gameobj, target.gameobj );
-                        rollbackPosition( target.gameobj, main.gameobj );
+                        rollbackPosition( main.gameObject, target.gameObject );
+                        rollbackPosition( target.gameObject, main.gameObject );
                     }
                 }
 
             }
         }
 
-        public void check_( Dictionary< int, CharacterData > char_dic )
+        public void check_( Dictionary< int, NPC > char_dic )
         {
             int i = 0;
             int loop_max = char_dic.Count;
             for( ; i < loop_max ; ++i )
             {
-                CharacterData main = char_dic[ i ];
+                NPC main = char_dic[ i ];
                 int j = 0;
                 int loop_max_j = char_dic.Count;
                 for( ; j < loop_max_j ; ++j )
                 {
-                    CharacterData target = char_dic[ j ];
+                    NPC target = char_dic[ j ];
                     if( main == target )
                         continue;
 
-                    bool result = rectToRectOBB( main.gameobj.GetComponent<BoxCollider2D>(), target.gameobj.GetComponent<BoxCollider2D>() );
+                    bool result = rectToRectOBB( main.gameObject.GetComponent<BoxCollider2D>(), target.gameObject.GetComponent<BoxCollider2D>() );
                     if( result )
                     {
                         //현재 제대로 작동하지 않음. 원형의 롤백포지션이라서 그럼
-                        rollbackPositionOBB( main.gameobj, target.gameobj );
-                        rollbackPositionOBB( target.gameobj, main.gameobj );
+                        rollbackPositionOBB( main.gameObject, target.gameObject );
+                        rollbackPositionOBB( target.gameObject, main.gameObject );
                     }
                 }
             }
@@ -129,6 +127,24 @@ namespace game
             rollback_pos.y = rollback_pos.y - main.transform.position.y;
 
             main.transform.Translate( rollback_pos );
+        }
+
+        public void knockbackPosition( GameObject main, GameObject col, float knockback_dist )
+        {
+            knockback_dist = knockback_dist <= 0 ? 50 : knockback_dist;
+
+            float rollback_rad = Mathf.Atan2( col.transform.position.y - main.transform.position.y, col.transform.position.x - main.transform.position.x );
+            Vector3 rollback_pos = new Vector3( Mathf.Cos( rollback_rad ), Mathf.Sin( rollback_rad ), 0 );
+            rollback_pos.Normalize();
+            rollback_pos *= knockback_dist;
+
+            rollback_pos.x += col.transform.position.x;
+            rollback_pos.y += col.transform.position.y;
+
+            rollback_pos.x = rollback_pos.x - col.transform.position.x;
+            rollback_pos.y = rollback_pos.y - col.transform.position.y;
+
+            col.transform.Translate( rollback_pos );
         }
 
 
@@ -233,7 +249,7 @@ namespace game
          *  @hitbox - 공격 판정
          *  @char_dic - uid가 키값인 캐릭터 데이터
          */
-        public List< int > attackCollideCheck( BoxCollider2D hitbox, Dictionary< int, CharacterData > char_dic )
+        public List< int > attackCollideCheck( BoxCollider2D hitbox, Dictionary< int, NPC > char_dic )
         {
             List< int > hit_obj_uids = new List< int >();
 
@@ -243,12 +259,12 @@ namespace game
             for( ; i < loop_max ; ++i )
             {
                 int key = keys[ i ];
-                CharacterData ch = char_dic[ key ];
+                NPC ch = char_dic[ key ];
                 //메인 캐릭터는 검사하지 않음
                 if( ch.uid == GameManager.mainch.uid )
                     continue;
 
-                bool result = rectToRectOBB( hitbox, ch.gameobj.GetComponent<BoxCollider2D>() );
+                bool result = rectToRectOBB( hitbox, ch.gameObject.GetComponent<BoxCollider2D>() );
                 if( result )
                     hit_obj_uids.Add( ch.uid );
             }
@@ -261,7 +277,7 @@ namespace game
          *  @hitbox - 공격 판정
          *  @char_dic - uid가 키값인 캐릭터 데이터
          */
-        public List< int > attackCollideCheck( CircleCollider2D hitbox, Dictionary< int, CharacterData > char_dic )
+        public List< int > attackCollideCheck( CircleCollider2D hitbox, Dictionary< int, NPC > char_dic )
         {
             List< int > hit_obj_uids = new List< int >();
 
@@ -271,12 +287,12 @@ namespace game
             for( ; i < loop_max ; ++i )
             {
                 int key = keys[ i ];
-                CharacterData ch = char_dic[ key ];
+                NPC ch = char_dic[ key ];
                 //메인 캐릭터는 검사하지 않음
                 if( ch.uid == GameManager.mainch.uid )
                     continue;
 
-                BoxCollider2D compo = ch.gameobj.GetComponent<BoxCollider2D>();
+                BoxCollider2D compo = ch.gameObject.GetComponent<BoxCollider2D>();
 
                 Rect rect = new Rect();
                 rect.xMin = compo.transform.position.x - (compo.size.x * 0.5f);

@@ -16,9 +16,13 @@ namespace game
 
         public GameObject stat_value;
 
+        public Image bg;
+
         // Start is called before the first frame update
         void Start()
         {
+            bg.rectTransform.sizeDelta = new Vector2( GameManager.instance.res_v_half * 2, GameManager.instance.res_h_half * 2 );
+
             rewardbutton_list[ 0 ].onClick.AddListener( () => OnRewardClick( 0 ) );
             rewardbutton_list[ 1 ].onClick.AddListener( () => OnRewardClick( 1 ) );
             rewardbutton_list[ 2 ].onClick.AddListener( () => OnRewardClick( 2 ) );
@@ -30,25 +34,21 @@ namespace game
             stat_list.Add( stat_value.transform.GetChild( 3 ).name, stat_value.transform.GetChild( 3 ).gameObject.GetComponent< TextMeshProUGUI >() );
             stat_list.Add( stat_value.transform.GetChild( 4 ).name, stat_value.transform.GetChild( 4 ).gameObject.GetComponent< TextMeshProUGUI >() );
 
-            PCMain pcmain_compo = ((PCMain)GameManager.mainch.script);
-            stat_list[ "hp" ].text = pcmain_compo.hp.ToString();
-            stat_list[ "atk" ].text = pcmain_compo.atk.ToString();
-            stat_list[ "spd" ].text = pcmain_compo.move_speed.ToString();
-            stat_list[ "atkspd" ].text = pcmain_compo.attack_speed.ToString();
-            stat_list[ "dist" ].text = pcmain_compo.collect_dist.ToString();
+            stat_list[ "hp" ].text = GameManager.mainch.hp.ToString();
+            stat_list[ "atk" ].text = GameManager.mainch.atk.ToString();
+            stat_list[ "spd" ].text = GameManager.mainch.move_speed.ToString();
+            stat_list[ "atkspd" ].text = GameManager.mainch.attack_speed.ToString();
+            stat_list[ "dist" ].text = GameManager.mainch.collect_dist.ToString();
         }
 
         public void OnRewardClick( int button_index )
         {
             GameManager.gamelogic.addItemMainPC( button_index );
-            GameManager.gamelogic.uimgr.ui_levelup.gameObject.SetActive( false );
-            GameManager.gamelogic.pauseGame( false );
         }
 
         public void init()
         {
             GameManager.gamelogic.uimgr.ui_levelup.gameObject.SetActive( false );
-            GameManager.gamelogic.pauseGame( false );
         }
 
         public void setRewards( List< ItemData > reward_list )
