@@ -40,8 +40,8 @@ namespace game
         public PoolManager poolmgr_ = new PoolManager();
         public static PoolManager poolmgr => instance.poolmgr_;
 
-        public CollideFuncs collidefuncs_ = new CollideFuncs();
-        public static CollideFuncs collidefuncs => instance.collidefuncs_;
+        public SoundManager soundmgr_ = new SoundManager();
+        public static SoundManager soundmgr => instance.soundmgr_;
 
 
 

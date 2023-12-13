@@ -14,13 +14,14 @@ namespace game
     public class MapManager
     {
         //나중에 stage table로 빼서 받아오도록 변경해야 한다
-        public string map_prefab_address = "Assets/prefabs/map/tile.prefab";
-        public CollideFuncs collide = new CollideFuncs();
+        //public string map_prefab_address = "Assets/prefabs/map/tile.prefab";
+        public string map_prefab_address = "Assets/prefabs/map/tilemap.prefab";
 
         public List< Tile > tile_list = new List< Tile >();
 
         private const int CONST_TILE_WIDTH = 2;
         private const int CONST_TILE_HEIGHT = 2;
+        private const int CONST_TILE_SIZE = 2000;
 
         public void loadTile()
         {
@@ -47,8 +48,9 @@ namespace game
                 for( ; j < loop_max_j ; ++j )
                 {
                     GameObject ins_tile = GameManager.poolmgr.instanceGet( map_prefab_address );
+                    ins_tile.transform.SetParent( GameManager.gamelogic.grid.transform );
                     Tile tile_script = ins_tile.GetComponent< Tile >();
-                    ins_tile.transform.position = new Vector3( 2048f * i, 2048f * j, 0f );
+                    ins_tile.transform.position = new Vector3( -1000f + (CONST_TILE_SIZE * i), -1000f + (CONST_TILE_SIZE * j), 0f );
                     ins_tile.SetActive( true );
 
                     tile_list.Add( tile_script );
@@ -100,8 +102,8 @@ namespace game
                         index++;
                     }
 
-                    float pos_x = main_tile_pos.x + ((offset_x * 2048f) * j);
-                    float pos_y = main_tile_pos.y + ((offset_y * 2048f) * i);
+                    float pos_x = main_tile_pos.x + ((offset_x * CONST_TILE_SIZE) * j);
+                    float pos_y = main_tile_pos.y + ((offset_y * CONST_TILE_SIZE) * i);
 
                     if( Vector2.Equals( main_tile_pos, new Vector2( pos_x, pos_y ) ) )
                     {
@@ -123,7 +125,7 @@ namespace game
 
         public void destroyTileSet()
         {
-            int i = tile_list.Count - 1;            
+            int i = tile_list.Count - 1;
             for( ; i > -1 ; --i )
             {
                 tile_list[ i ].release();

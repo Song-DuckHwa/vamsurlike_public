@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace game
 {
-    public class NPC : MoveableObject
+    public class Npc : MoveableObject
     {
         public int hp;
         public int current_hp = 0;
@@ -13,9 +13,12 @@ namespace game
         public int level;
         public int exp;
 
-        Vector2 attack_dir;
+        private int life_time;
 
-        NPC target;
+        Vector2 attack_dir;
+        public Vector2 move_dest;
+
+        Npc target;
 
         public GameObject attack_hitbox;
 
@@ -23,11 +26,9 @@ namespace game
 
         public SkillManager skillmgr = new SkillManager();
 
-        public SpriteRenderer sprite;
-
         private void Awake()
         {
-            sprite = GetComponent< SpriteRenderer >();
+            initCompos();
         }
 
         private void OnEnable()
@@ -38,13 +39,27 @@ namespace game
             if( target == null )
                 return;
 
-            sprite.color = Color.white;
+            spr.color = Color.white;
+
+            state = (int)STATE.IDLE;
+            if( target != null || move_dest != Vector2.zero )
+                state = (int)STATE.RUN;
         }
 
         // Start is called before the first frame update
         void Start()
         {
-            col = GetComponent<CircleCollider2D>();
+            life_time = life_time != 0 ? life_time : int.MaxValue;
+        }
+
+        protected virtual void initCompos()
+        {
+            GameObject sprite = transform.GetChild( 0 ).gameObject;
+            spr = sprite.GetComponent< SpriteRenderer >();
+            ani = sprite.GetComponent< Animator >();
+            rigidbody = GetComponent< Rigidbody2D >();
+
+            ccol = GetComponent<CircleCollider2D>();
 
             collide_mask |= (int)CollideMask.PC;
             collide_mask |= (int)CollideMask.NPC;
@@ -53,10 +68,6 @@ namespace game
             collide_mask |= (int)CollideMask.OBSTACLE;
 
             collide_type = (int)CollideMask.MOB;
-
-            compo = GetComponent<NPC>();
-
-            spr = GetComponent< SpriteRenderer >();
         }
 
         public virtual void setStat( Monster stat )
@@ -67,18 +78,39 @@ namespace game
             exp = (int)stat.exp;
         }
 
+        public void setLifeTime( int lifetime )
+        {
+            life_time = (int)lifetime;
+        }
+
         // Update is called once per frame
         protected virtual void Update()
         {
+            if( state != (int)STATE.DEAD && life_time <= 0 )
+            {
+                die( false );
+                return;
+            }
+
             int current_game_time_msec = GameManager.getCurrentGameTime();
             skillmgr.Update( current_game_time_msec );
+
+            if( life_time != int.MaxValue )
+            {
+                life_time -= (int)(Time.deltaTime * 1000f);
+            }
         }
 
         //use rigidbody
         private void FixedUpdate()
         {
             //moveWithRigidBody();
-            moveWithoutRigidBody();
+            switch( state )
+            {
+                case (int)STATE.RUN :
+                    moveWithoutRigidBody();
+                    break;
+            }
         }
 
         public virtual void moveWithRigidBody()
@@ -110,16 +142,19 @@ namespace game
         public virtual void moveWithoutRigidBody()
         {
             //move stop
-            //나중에 state로 관리하도록 수정해야 함
             if( target == null || target.gameObject == null )
             {
                 move_speed = 0;
-                return;
+                state = (int)STATE.IDLE;
             }
 
-            Vector3 dest = target.transform.position;
-            Vector3 current_pos = transform.position;
-            Vector3 velocity = new Vector3( dest.x - current_pos.x, dest.y - current_pos.y );
+            Vector3 dest = Vector3.zero;
+            Vector3 current_pos = Vector3.zero;
+            Vector3 velocity = Vector3.zero;
+
+            dest = (move_dest != Vector2.zero) ? move_dest : target.transform.position;
+            current_pos = transform.position;
+            velocity = new Vector3( dest.x - current_pos.x, dest.y - current_pos.y );
             velocity.Normalize();
             velocity *= move_speed;
             //프레임 보간
@@ -128,6 +163,7 @@ namespace game
             direction = velocity;
 
             spr.flipX = (velocity.x < 0);
+            state = (int)STATE.RUN;
         }
 
         public virtual void OnTriggerEnter2D( Collider2D collision )
@@ -140,6 +176,7 @@ namespace game
 
         public virtual void takeDamage( GameObject hitter, int knockback_dist )
         {
+            GameManager.soundmgr.sfxs[ SFX.DAMAGE ].Play();
             current_hp -= 10;
             if( current_hp <= 0 )
             {
@@ -147,7 +184,8 @@ namespace game
                 return;
             }
 
-            GameManager.collidefuncs.knockbackPosition( hitter, gameObject, knockback_dist );
+            CollideFuncs.knockbackPosition( hitter, gameObject, knockback_dist );
+            ani.SetTrigger( "Damage" );
         }
 
         public virtual void enemyCollide()
@@ -155,35 +193,39 @@ namespace game
 
         }
 
-        public override void die()
+        public virtual void die( bool gem_drop = true )
         {
-            GameManager.gamelogic.generateExpGem( uid, exp );
-            GameManager.gamelogic.generateHealItem( uid );
+            if( gem_drop == true )
+            {
+                GameManager.gamelogic.generateExpGem( uid, exp );
+                GameManager.gamelogic.generateHealItem( uid );
+            }
 
             //잡으면 스테이지 클리어
             if( GameManager.gamelogic.stage_clear_key_monsters.TryGetValue( uid, out int stage_clear_key ) == true )
+            {
                 if( stage_clear_key == uid )
+                {
                     GameManager.gamelogic.stage_clear_key_monsters.Remove( uid );
+                    GameManager.soundmgr.sfxs[ SFX.BOSSKILL ].Play();
+                }
+            }
 
 
-            target = null;
-            StartCoroutine( "DieAni" );
+            //이 애니 끝에 이벤트로 release가 들어가있음
+            ani.SetTrigger( "Dead" );
+
+            //target = null;
+            state = (int)STATE.DEAD;
         }
 
-        IEnumerator DieAni()
+        public override void release()
         {
-            for( ; ; )
-            {
-                sprite.color = new Color( 255f, 255f, 255f, sprite.color.a - 0.1f );
-                if( sprite.color.a < 0 )
-                {
-                    release();
-                    GameManager.charmgr.delete( uid );
-                    StopCoroutine( "DieAni" );
-                }
-
-                yield return null;
-            }
+            GameManager.charmgr.delete( uid );
+            skillmgr.clearSkill();
+            life_time = int.MaxValue;
+            move_dest = Vector2.zero;
+            pool.release( this.gameObject );
         }
 
         void OnDrawGizmos()

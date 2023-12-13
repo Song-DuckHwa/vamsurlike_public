@@ -83,7 +83,7 @@ namespace game
             rect.yMin = transform.position.y - (box.size.y * 0.5f);
             rect.yMax = transform.position.y + (box.size.y * 0.5f);
 
-            bool result = GameManager.collidefuncs.pointToRectCollide( mainch_pos, rect );
+            bool result = CollideFuncs.pointToRectCollide( mainch_pos, rect );
             if( result )
             {
                 int chpos_quadrant = calcQuadrant();

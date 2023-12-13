@@ -7,15 +7,14 @@ using UnityEngine.UIElements;
 using static UnityEngine.RuleTile.TilingRuleOutput;
 
 namespace game
-{    
+{
     public class CharacterManager
     {
         public static CharacterManager instance = null;
 
-        private Dictionary< int, NPC > char_dic = new Dictionary< int, NPC >();
+        private Dictionary< int, Npc > char_dic = new Dictionary< int, Npc >();
         private Dictionary< int, ExpGem > expgem_dic = new Dictionary< int, ExpGem >();
         private int current_uid;
-        private CollideFuncs collidemgr = new CollideFuncs();
 
         public void init()
         {
@@ -46,16 +45,16 @@ namespace game
             }
         }
 
-        public NPC find( int uid )
+        public Npc find( int uid )
         {
-            char_dic.TryGetValue( uid, out NPC value );
+            char_dic.TryGetValue( uid, out Npc value );
 
             return value;
         }
 
-        public NPC add( GameObject obj )
+        public Npc add( GameObject obj )
         {
-            NPC script = obj.GetComponent< NPC >();
+            Npc script = obj.GetComponent< Npc >();
             script.uid = current_uid;
             char_dic.Add( current_uid, script );
             current_uid++;
@@ -88,7 +87,7 @@ namespace game
             for( ; i < loop_max ; ++i )
             {
                 int key_i = keys[ i ];
-                char_dic.TryGetValue( key_i, out NPC ch );
+                char_dic.TryGetValue( key_i, out Npc ch );
                 if( ch != null )
                     ch.release();
 
@@ -99,12 +98,12 @@ namespace game
         //공격판정과 캐릭터들이 충돌하였는가
         public List< int > attackCollideCheck( BoxCollider2D hitbox )
         {
-            return collidemgr.attackCollideCheck( hitbox, char_dic );
+            return CollideFuncs.attackCollideCheck( hitbox, char_dic );
         }
 
         public List< int > attackCollideCheck( CircleCollider2D hitbox )
         {
-            return collidemgr.attackCollideCheck( hitbox, char_dic );
+            return CollideFuncs.attackCollideCheck( hitbox, char_dic );
         }
 
         public GameObject addExpGem( int exp )
@@ -129,7 +128,7 @@ namespace game
             if( char_dic.Count > 1 )
             {
                 //나중에 게임로직에서 체크하도록 수정해야 함
-                collidemgr.check( char_dic );
+                CollideFuncs.check( char_dic );
             }
         }
     }

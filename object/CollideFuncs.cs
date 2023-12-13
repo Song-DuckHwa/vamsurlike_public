@@ -7,10 +7,10 @@ using UnityEngine.InputSystem;
 
 namespace game
 {
-    public class CollideFuncs
+    public static class CollideFuncs
     {
         //원 - 원 충돌체크
-        public void check( Dictionary< int, NPC > char_dic )
+        public static void check( Dictionary< int, Npc > char_dic )
         {
             //현재 방식으로는 앞에서 진행했던 오브젝트들 끼리의 중복체크가 일어나게 됨
             //list의 뒤에서부터 검사해서 end와 end - 1 부터 출발하여 비교하는 식으로 하면 중복이 없어짐
@@ -20,7 +20,7 @@ namespace game
             for( ; i < loop_max ; ++i )
             {
                 int key_i = keys[ i ];
-                char_dic.TryGetValue( key_i, out NPC main );
+                char_dic.TryGetValue( key_i, out Npc main );
                 if( main == null )
                     continue;
 
@@ -29,7 +29,56 @@ namespace game
                 for( ; j < loop_max_j ; ++j )
                 {
                     int key_j = keys[ j ];
-                    char_dic.TryGetValue( key_j, out NPC target );
+                    char_dic.TryGetValue( key_j, out Npc target );
+                    if( target == null )
+                        continue;
+
+                    if( main == target )
+                        continue;
+
+                    //충돌 마스크 체크 해서 충돌하지 않는 개체들이면 스킵
+                    if( (main.collide_mask & target.collide_type) == 0 )
+                        continue;
+
+                    if( main.state == (int)STATE.DEAD || target.state == (int)STATE.DEAD )
+                        continue;
+
+                    float dist = Vector3.Distance( main.transform.position, target.transform.position );
+                    float max_dist = (main.ccol.radius * main.transform.localScale.x) + (target.ccol.radius * target.transform.localScale.x);
+                    if( dist > max_dist )
+                        continue;
+
+                    main.enemyCollide();
+                    target.enemyCollide();
+
+                    rollbackPosition( main, target );
+                    rollbackPosition( target, main );
+                }
+
+            }
+        }
+
+        //원 - 원 충돌체크
+        public static void check_raycast( Dictionary< int, Npc > char_dic )
+        {
+            //현재 방식으로는 앞에서 진행했던 오브젝트들 끼리의 중복체크가 일어나게 됨
+            //list의 뒤에서부터 검사해서 end와 end - 1 부터 출발하여 비교하는 식으로 하면 중복이 없어짐
+            int i = 0;
+            List< int > keys = char_dic.Keys.ToList();
+            int loop_max = keys.Count;
+            for( ; i < loop_max ; ++i )
+            {
+                int key_i = keys[ i ];
+                char_dic.TryGetValue( key_i, out Npc main );
+                if( main == null )
+                    continue;
+
+                int j = 0;
+                int loop_max_j = keys.Count;
+                for( ; j < loop_max_j ; ++j )
+                {
+                    int key_j = keys[ j ];
+                    char_dic.TryGetValue( key_j, out Npc target );
                     if( target == null )
                         continue;
 
@@ -57,26 +106,26 @@ namespace game
                         main.enemyCollide();
                         target.enemyCollide();
 
-                        rollbackPosition( main.gameObject, target.gameObject );
-                        rollbackPosition( target.gameObject, main.gameObject );
+                        rollbackPosition( main, target );
+                        rollbackPosition( target, main );
                     }
                 }
 
             }
         }
 
-        public void check_( Dictionary< int, NPC > char_dic )
+        public static void check_( Dictionary< int, Npc > char_dic )
         {
             int i = 0;
             int loop_max = char_dic.Count;
             for( ; i < loop_max ; ++i )
             {
-                NPC main = char_dic[ i ];
+                Npc main = char_dic[ i ];
                 int j = 0;
                 int loop_max_j = char_dic.Count;
                 for( ; j < loop_max_j ; ++j )
                 {
-                    NPC target = char_dic[ j ];
+                    Npc target = char_dic[ j ];
                     if( main == target )
                         continue;
 
@@ -92,18 +141,23 @@ namespace game
         }
 
         //원형에서의 롤백
-        public void rollbackPosition( GameObject main, GameObject col )
+        public static void rollbackPosition( Npc main, Npc col )
         {
-            //magic
-            float max_dist = 50f;
+            float main_radius = main.ccol.radius * main.transform.localScale.x;
+            float col_radius = col.ccol.radius * col.transform.localScale.x;
+            float max_dist = main_radius + col_radius;
+
+            //밀려질 방향
             float rollback_rad = Mathf.Atan2( main.transform.position.y - col.transform.position.y, main.transform.position.x - col.transform.position.x );
             Vector3 rollback_pos = new Vector3( Mathf.Cos( rollback_rad ), Mathf.Sin( rollback_rad ), 0 );
             rollback_pos.Normalize();
             rollback_pos *= max_dist;
 
+            //충돌한 외곽 지역의 위치를 파악
             rollback_pos.x += col.transform.position.x;
             rollback_pos.y += col.transform.position.y;
 
+            //충돌 외곽 지역의 차이 만큼 탐지 대상을 밀어낸다
             rollback_pos.x = rollback_pos.x - main.transform.position.x;
             rollback_pos.y = rollback_pos.y - main.transform.position.y;
 
@@ -111,7 +165,7 @@ namespace game
         }
 
         //obb에서의 롤백
-        public void rollbackPositionOBB( GameObject main, GameObject col )
+        public static void rollbackPositionOBB( GameObject main, GameObject col )
         {
             //magic
             float max_dist = 50f;
@@ -129,9 +183,9 @@ namespace game
             main.transform.Translate( rollback_pos );
         }
 
-        public void knockbackPosition( GameObject main, GameObject col, float knockback_dist )
+        public static void knockbackPosition( GameObject main, GameObject col, float knockback_dist )
         {
-            knockback_dist = knockback_dist <= 0 ? 50 : knockback_dist;
+            knockback_dist = knockback_dist < 0 ? 1 : knockback_dist;
 
             float rollback_rad = Mathf.Atan2( col.transform.position.y - main.transform.position.y, col.transform.position.x - main.transform.position.x );
             Vector3 rollback_pos = new Vector3( Mathf.Cos( rollback_rad ), Mathf.Sin( rollback_rad ), 0 );
@@ -148,9 +202,21 @@ namespace game
         }
 
 
-        public bool rectToRectOBB( BoxCollider2D main, BoxCollider2D col )
+        public static bool rectToRectOBB( BoxCollider2D main, BoxCollider2D col )
         {
-            Vector2 t = col.transform.position - main.transform.position;
+            float rad = main.transform.eulerAngles.z * Mathf.Deg2Rad;
+            Vector2 new_main_pos = new Vector2(
+                main.transform.position.x + (main.offset.x * Mathf.Cos( rad )),
+                main.transform.position.y + (main.offset.x * Mathf.Sin( rad ))
+            );
+
+            rad = col.transform.eulerAngles.z * Mathf.Deg2Rad;
+            Vector2 new_col_pos = new Vector2(
+                col.transform.position.x + (col.offset.x * Mathf.Cos( rad )),
+                col.transform.position.y + (col.offset.x * Mathf.Sin( rad ))
+            );
+
+            Vector2 t = new_col_pos - new_main_pos;
 
             float rarb = 0f;
             Vector2[] l = {
@@ -181,7 +247,7 @@ namespace game
         }
 
         //원-사각형 충돌 - 사각형이 회전하면 못씀
-        public bool circleToRectCollide( CircleCollider2D circle, Rect rect )
+        public static bool circleToRectCollide( CircleCollider2D circle, Rect rect )
         {
 
             float circle_radius = circle.radius * circle.transform.localScale.x;
@@ -232,7 +298,7 @@ namespace game
         }
 
         //점-사각형 충돌 - 사각형이 회전하면 못씀
-        public bool pointToRectCollide( Vector2 point, Rect rect )
+        public static bool pointToRectCollide( Vector2 point, Rect rect )
         {
             if( (rect.xMin <= point.x && point.x <= rect.xMax) &&
                 (rect.yMin <= point.y && point.y <= rect.yMax)
@@ -249,7 +315,7 @@ namespace game
          *  @hitbox - 공격 판정
          *  @char_dic - uid가 키값인 캐릭터 데이터
          */
-        public List< int > attackCollideCheck( BoxCollider2D hitbox, Dictionary< int, NPC > char_dic )
+        public static List< int > attackCollideCheck( BoxCollider2D hitbox, Dictionary< int, Npc > char_dic )
         {
             List< int > hit_obj_uids = new List< int >();
 
@@ -259,9 +325,9 @@ namespace game
             for( ; i < loop_max ; ++i )
             {
                 int key = keys[ i ];
-                NPC ch = char_dic[ key ];
-                //메인 캐릭터는 검사하지 않음
-                if( ch.uid == GameManager.mainch.uid )
+                Npc ch = char_dic[ key ];
+
+                if( ch.state == (int)STATE.DEAD )
                     continue;
 
                 bool result = rectToRectOBB( hitbox, ch.gameObject.GetComponent<BoxCollider2D>() );
@@ -277,7 +343,7 @@ namespace game
          *  @hitbox - 공격 판정
          *  @char_dic - uid가 키값인 캐릭터 데이터
          */
-        public List< int > attackCollideCheck( CircleCollider2D hitbox, Dictionary< int, NPC > char_dic )
+        public static List< int > attackCollideCheck( CircleCollider2D hitbox, Dictionary< int, Npc > char_dic )
         {
             List< int > hit_obj_uids = new List< int >();
 
@@ -287,9 +353,9 @@ namespace game
             for( ; i < loop_max ; ++i )
             {
                 int key = keys[ i ];
-                NPC ch = char_dic[ key ];
-                //메인 캐릭터는 검사하지 않음
-                if( ch.uid == GameManager.mainch.uid )
+                Npc ch = char_dic[ key ];
+
+                if( ch.state != (int)STATE.RUN )
                     continue;
 
                 BoxCollider2D compo = ch.gameObject.GetComponent<BoxCollider2D>();

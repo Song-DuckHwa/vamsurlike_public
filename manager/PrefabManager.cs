@@ -42,7 +42,25 @@ namespace game
             keys.Add( "Assets/prefabs/ui/hp.prefab" );
 
             /*------map------ */
-            keys.Add( "Assets/prefabs/map/tile.prefab" );
+            //keys.Add( "Assets/prefabs/map/tile.prefab" );
+            keys.Add( "Assets/prefabs/map/tilemap.prefab" );
+
+            /*------sound------ */
+            /*------bgm------ */
+            keys.Add( "Assets/prefabs/sound/bgm/alright.prefab" );
+
+            /*------sfx------ */
+            keys.Add( "Assets/prefabs/sound/sfx/defense1.prefab" );
+            keys.Add( "Assets/prefabs/sound/sfx/swing.prefab" );
+            keys.Add( "Assets/prefabs/sound/sfx/light_punch1.prefab" );
+            keys.Add( "Assets/prefabs/sound/sfx/laser_beam1.prefab" );
+            keys.Add( "Assets/prefabs/sound/sfx/levelup.prefab" );
+            keys.Add( "Assets/prefabs/sound/sfx/tab.prefab" );
+            keys.Add( "Assets/prefabs/sound/sfx/gem.prefab" );
+            keys.Add( "Assets/prefabs/sound/sfx/clear.prefab" );
+            keys.Add( "Assets/prefabs/sound/sfx/bosskill.prefab" );
+            keys.Add( "Assets/prefabs/sound/sfx/fail.prefab" );
+            keys.Add( "Assets/prefabs/sound/sfx/pc_damage.prefab" );
 
             //List< Task< int > > task_list = new List< Task< int > >();
 

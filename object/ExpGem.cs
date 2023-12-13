@@ -10,7 +10,7 @@ namespace game
     public class ExpGem : MoveableObject
     {
         public int uid;
-        NPC target;
+        Npc target;
         public int exp;
 
         private bool gen_complete = false;
@@ -34,27 +34,29 @@ namespace game
             float random_spawn_radian = (float)random_spawn_degree * mathlib.DEG_TO_RAD;
             Vector3 start_pos = transform.position;
             float start_time = GameManager.getCurrentGameTime();
-
-            yield return null;
+            float dist = 100f;
+            float current_msec = 0f;
+            float inverse_lerp = 0f;
+            float ease = 0f;
+            float new_dist = 0f;
+            Vector3 new_pos = new Vector3( 0f, 0f, 0f );
 
             for( ; ; )
             {
-                float current_msec = GameManager.getCurrentGameTime();
-                float inverse_lerp = Mathf.InverseLerp( start_time, start_time + 500f, current_msec );
-                //ease quint out - https://easings.net/ko#easeOutQuint
-                float ease = 1 - Mathf.Pow( 1 - inverse_lerp, 5 );
-                float dist = 100f;
-                float new_dist = dist * ease;
+                current_msec = GameManager.getCurrentGameTime();
+                inverse_lerp = Mathf.InverseLerp( start_time, start_time + 500f, current_msec );
+                ease = Ease.Quint.Out( inverse_lerp );                
+                new_dist = dist * ease;
 
-                float pos_x = (new_dist * Mathf.Cos( random_spawn_radian )) + start_pos.x;
-                float pos_y = (new_dist * Mathf.Sin( random_spawn_radian )) + start_pos.y;
+                new_pos.x = (new_dist * Mathf.Cos( random_spawn_radian )) + start_pos.x;
+                new_pos.y = (new_dist * Mathf.Sin( random_spawn_radian )) + start_pos.y;
 
-                transform.position = new Vector3( pos_x, pos_y, 0f );
+                transform.position = new Vector3( new_pos.x, new_pos.y, 0f );
 
-                if( inverse_lerp >= 1 )
+                if( inverse_lerp >= 1f )
                 {
                     gen_complete = true;
-                    StopCoroutine( "GenerateAni" );
+                    yield break;
                 }
 
                 yield return null;
@@ -103,6 +105,7 @@ namespace game
         {
             GameManager.gamelogic.addMainPCExp( exp );
             GameManager.charmgr.deleteExpGem( uid );
+            GameManager.soundmgr.sfxs[ SFX.GEM ].Play();
             release();
         }
     }

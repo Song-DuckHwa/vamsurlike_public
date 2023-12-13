@@ -10,6 +10,11 @@ namespace game
         public int move_speed;
         private int knockback_dist = 20;
 
+        public int attack_tick = 0;
+
+        //uid, next tick
+        private Dictionary< int, int > next_hit_ticks = new Dictionary< int, int >();
+
         private void FixedUpdate()
         {
             calcOrbitPos();
@@ -18,23 +23,41 @@ namespace game
         // Update is called once per frame
         void Update()
         {
-            //데미지 주기 조절 생각해야함
-            //이렇게 되면 업데이트 될때마다 공격함
-            List< int > hitted_targets = GameManager.charmgr.attackCollideCheck( (CircleCollider2D)collider_compo );
-            if( hitted_targets.Count > 0 )
+            int current_game_time = GameManager.getCurrentGameTime();
+            Npc actor = GameManager.charmgr.find( actor_uid );
+            if( actor == null )
+                return;
+
+            List< int > hit_target_uids = GameManager.charmgr.attackCollideCheck( (CircleCollider2D)collider_compo );
+            if( hit_target_uids.Count > 0 )
             {
                 int i = 0;
-                int loop_max = hitted_targets.Count;
+                int loop_max = hit_target_uids.Count;
                 for( ; i < loop_max ; ++i )
                 {
-                    NPC ch = GameManager.charmgr.find( hitted_targets[ i ] );
+                    int target_uid = hit_target_uids[ i ];
+                    //collide mask로 변경해야 함
+                    if( hit_target_uids[ i ] == actor_uid )
+                        continue;
+
+                    Npc ch = GameManager.charmgr.find( target_uid );
                     if( ch != null )
                     {
-                        NPC actor = GameManager.charmgr.find( actor_uid );
-                        if( actor == null )
-                            return;
-
-                        ch.takeDamage( actor.gameObject, knockback_dist );
+                        //이전에 때렸던 타겟이라면 다음 공격 틱이 되었는지 확인 하고 다시 때린다
+                        //아니라면 그냥 때린다
+                        if( next_hit_ticks.TryGetValue( target_uid, out int next_hit_tick ) == true )
+                        {
+                            if( current_game_time >= next_hit_tick )
+                            {
+                                ch.takeDamage( actor.gameObject, knockback_dist );
+                                next_hit_ticks[ target_uid ] = current_game_time + attack_tick;
+                            }
+                        }
+                        else
+                        {
+                            ch.takeDamage( actor.gameObject, knockback_dist );
+                            next_hit_ticks.Add( target_uid, current_game_time + attack_tick );
+                        }
                     }
                 }
             }
@@ -47,7 +70,7 @@ namespace game
 
             destroyInsList();
 
-            NPC actor = GameManager.charmgr.find( actor_uid );
+            Npc actor = GameManager.charmgr.find( actor_uid );
             if( actor == null )
                 return true ;
 
@@ -62,6 +85,8 @@ namespace game
                     return true;
 
                 Orbit script = ins.GetComponent< Orbit >();
+                script.actor_uid = actor_uid;
+                script.attack_tick = table_level_data.attack_tick;
                 //magic
                 script.move_speed = 100;
                 script.collider_compo = ins.GetComponent< CircleCollider2D >();
@@ -71,7 +96,7 @@ namespace game
                 float rad = deg * Mathf.Deg2Rad;
                 Vector3 hitarea_pos = new Vector3();
                 //magic
-                int hitarea_dist = 100;
+                int hitarea_dist = 300;
                 hitarea_pos.x = hitarea_dist * Mathf.Cos( rad );
                 hitarea_pos.y = hitarea_dist * Mathf.Sin( rad );
 
@@ -97,7 +122,7 @@ namespace game
             float rad = pos_deg * Mathf.Deg2Rad;
             Vector2 hitarea_pos = new Vector2();
             //magic
-            int hitarea_dist = 100;
+            int hitarea_dist = 300;
             hitarea_pos.x = hitarea_dist * Mathf.Cos( rad );
             hitarea_pos.y = hitarea_dist * Mathf.Sin( rad );
 

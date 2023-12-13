@@ -49,5 +49,10 @@ namespace game
         {
             pool.Release( obj );
         }
+
+        public void clear()
+        {
+            pool.Clear();
+        }
     }
 }
