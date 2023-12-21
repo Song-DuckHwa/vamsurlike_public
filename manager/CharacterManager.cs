@@ -108,12 +108,12 @@ namespace game
 
         public GameObject addExpGem( int exp )
         {
-            GameObject expgem = GameManager.poolmgr.instanceGet( "Assets/prefabs/object/exp.prefab" );
+            GameObject expgem = GameManager.poolmgr.instanceGet( "prefabs/object/exp" );
             if( expgem == null )
                 return null;
 
             ExpGem expgem_script = expgem.GetComponent< ExpGem >();
-            expgem_script.pool = GameManager.poolmgr.pools[ "Assets/prefabs/object/exp.prefab" ];
+            expgem_script.pool = GameManager.poolmgr.pools[ "prefabs/object/exp" ];
             expgem_script.exp = exp;
             expgem_script.uid = current_uid;
 

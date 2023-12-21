@@ -16,7 +16,7 @@ namespace game
             if( sfxs.Count != 0 )
                 return;
 
-            GameObject bgm_org = GameManager.prefabmgr.prefabs[ "Assets/prefabs/sound/bgm/alright.prefab" ];
+            GameObject bgm_org = GameManager.prefabmgr.prefabs[ "prefabs/sound/bgm/alright" ];
             GameObject bgm_ins = Object.Instantiate( bgm_org );
 
             bgm = bgm_ins.GetComponent< AudioSource >();

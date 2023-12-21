@@ -14,8 +14,7 @@ namespace game
     public class MapManager
     {
         //나중에 stage table로 빼서 받아오도록 변경해야 한다
-        //public string map_prefab_address = "Assets/prefabs/map/tile.prefab";
-        public string map_prefab_address = "Assets/prefabs/map/tilemap.prefab";
+        public string map_prefab_address = "prefabs/map/tilemap";
 
         public List< Tile > tile_list = new List< Tile >();
 

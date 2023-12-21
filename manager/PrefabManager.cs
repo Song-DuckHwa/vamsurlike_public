@@ -12,63 +12,24 @@ namespace game
         public Dictionary< string, GameObject > prefabs = new Dictionary< string, GameObject >();
         public bool load_complete = false;
 
+        private List< string > task_keys = new List< string>();
         public List< Task< int > > task_list = new List< Task< int > >();
 
         public async Task start()
         {
+            await loadScriptableObject( "object" );
+            await loadScriptableObject( "skill" );
+            await loadScriptableObject( "map" );
+            await loadScriptableObject( "sound" );
+
             if( load_complete == true )
                 return;
 
-            List< string > keys = new List< string >();
-            /*------object------ */
-            keys.Add( "Assets/prefabs/object/pcmain.prefab" );
-            keys.Add( "Assets/prefabs/object/enemy.prefab" );
-            keys.Add( "Assets/prefabs/object/exp.prefab" );
-            keys.Add( "Assets/prefabs/object/yellow.prefab" );
-            keys.Add( "Assets/prefabs/object/boss.prefab" );
-            keys.Add( "Assets/prefabs/object/heal.prefab" );
-
-            /*------skill------ */
-            keys.Add( "Assets/prefabs/skillaoe.prefab" );
-            keys.Add( "Assets/prefabs/skillbullet.prefab" );
-            keys.Add( "Assets/prefabs/skillswing.prefab" );
-            keys.Add( "Assets/prefabs/skillorbit.prefab" );
-
-            keys.Add( "Assets/prefabs/skill/skilllaser.prefab" );
-            keys.Add( "Assets/prefabs/skill/rectindicator.prefab" );
-
-            /*------ui------ */
-            keys.Add( "Assets/prefabs/ui/exp.prefab" );
-            keys.Add( "Assets/prefabs/ui/hp.prefab" );
-
-            /*------map------ */
-            //keys.Add( "Assets/prefabs/map/tile.prefab" );
-            keys.Add( "Assets/prefabs/map/tilemap.prefab" );
-
-            /*------sound------ */
-            /*------bgm------ */
-            keys.Add( "Assets/prefabs/sound/bgm/alright.prefab" );
-
-            /*------sfx------ */
-            keys.Add( "Assets/prefabs/sound/sfx/defense1.prefab" );
-            keys.Add( "Assets/prefabs/sound/sfx/swing.prefab" );
-            keys.Add( "Assets/prefabs/sound/sfx/light_punch1.prefab" );
-            keys.Add( "Assets/prefabs/sound/sfx/laser_beam1.prefab" );
-            keys.Add( "Assets/prefabs/sound/sfx/levelup.prefab" );
-            keys.Add( "Assets/prefabs/sound/sfx/tab.prefab" );
-            keys.Add( "Assets/prefabs/sound/sfx/gem.prefab" );
-            keys.Add( "Assets/prefabs/sound/sfx/clear.prefab" );
-            keys.Add( "Assets/prefabs/sound/sfx/bosskill.prefab" );
-            keys.Add( "Assets/prefabs/sound/sfx/fail.prefab" );
-            keys.Add( "Assets/prefabs/sound/sfx/pc_damage.prefab" );
-
-            //List< Task< int > > task_list = new List< Task< int > >();
-
             int i = 0;
-            int loop_max = keys.Count;
+            int loop_max = task_keys.Count;
             for( ; i < loop_max ; ++i )
             {
-                string key = keys[ i ];
+                string key = task_keys[ i ];
                 task_list.Add( Load( key ) );
             }
 
@@ -95,6 +56,22 @@ namespace game
             prefabs.Add( key, (GameObject)obj );
 
             return task_id;
+        }
+
+        public async Task loadScriptableObject( string key )
+        {
+            AsyncOperationHandle handle = Addressables.LoadAssetAsync< ScriptableObject >( $"address/{key}" );
+
+            var obj = await handle.Task;
+
+            PrefabTable table = (PrefabTable)obj;
+
+            int i = 0;
+            int loop_max = table.address.Count;
+            for( ; i < loop_max ; ++i )
+            {
+                task_keys.Add( table.address[ i ] );
+            }
         }
     }
 }

@@ -20,14 +20,14 @@ namespace game
         {
             GameManager.gamelogic.uimgr.ui_levelup.gameObject.SetActive( false );
 
-            bg.rectTransform.sizeDelta = new Vector2( GameManager.instance.res_v_half * 2, GameManager.instance.res_h_half * 2 );
-
             for( int i = 0 ; i < rewardbutton_list.Count ; ++i )
                 rewardbutton_list[ i ].onClick.RemoveAllListeners();
 
             rewardbutton_list[ 0 ].onClick.AddListener( () => OnRewardClick( 0 ) );
             rewardbutton_list[ 1 ].onClick.AddListener( () => OnRewardClick( 1 ) );
             rewardbutton_list[ 2 ].onClick.AddListener( () => OnRewardClick( 2 ) );
+            rewardbutton_list[ 3 ].onClick.AddListener( () => OnRewardClick( 3 ) );
+            rewardbutton_list[ 4 ].onClick.AddListener( () => OnRewardClick( 4 ) );
 
             stat_list.Clear();
             stat_list.Add( stat_value.transform.GetChild( 0 ).name, stat_value.transform.GetChild( 0 ).gameObject.GetComponent< TextMeshProUGUI >() );

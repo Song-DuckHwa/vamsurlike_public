@@ -92,8 +92,7 @@ namespace game
         public async Task start( string file_name )
         {
             List< string > keys = new List< string >();
-            keys.Add( $"Assets/data/table/{file_name}.json" );
-
+            keys.Add( $"table/{file_name}" );
 
             int i = 0;
             int loop_max = keys.Count;

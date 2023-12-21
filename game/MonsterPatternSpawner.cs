@@ -51,7 +51,7 @@ namespace game
 
                 Vector3 spawn_pos = new Vector3( standard_x, standard_y, 0 );
 
-                string prefab_name = $"Assets/prefabs/object/{GameManager.tablemgr.monster.monster_data[ spawn_data.monster_name ].prefab_name}.prefab";
+                string prefab_name = $"prefabs/object/{GameManager.tablemgr.monster.monster_data[ spawn_data.monster_name ].prefab_name}";
                 GameObject enemy_ins = GameManager.poolmgr.instanceGet( prefab_name );
                 if( enemy_ins == null )
                     return null;
@@ -130,7 +130,7 @@ namespace game
 
                 Vector3 spawn_pos = new Vector3( standard_x, standard_y, 0 );
 
-                string prefab_name = $"Assets/prefabs/object/{GameManager.tablemgr.monster.monster_data[ spawn_data.monster_name ].prefab_name}.prefab";
+                string prefab_name = $"prefabs/object/{GameManager.tablemgr.monster.monster_data[ spawn_data.monster_name ].prefab_name}";
                 GameObject enemy_ins = GameManager.poolmgr.instanceGet( prefab_name );
                 if( enemy_ins == null )
                     return null;
