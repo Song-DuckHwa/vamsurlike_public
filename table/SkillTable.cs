@@ -25,6 +25,8 @@ namespace game
     }
     public class SkillDetailData
     {
+        public bool show_levelup_reward;
+        public int usage;
         public string asset_address;
         public List< string > description;
         public List< SkillLevelData > level_data = new List< SkillLevelData >();
@@ -33,6 +35,8 @@ namespace game
     public class SkillTableData
     {
         public Dictionary< int, SkillDetailData > data = new Dictionary<int, SkillDetailData>();
+        public SortedSet< int > pc_can_learn_uid = new SortedSet< int >();
+        public SortedSet< int > item_uid = new SortedSet< int >();
     }
 
     public class SkillTable
@@ -60,6 +64,9 @@ namespace game
                     string key = prop[ i ].Name.ToString();
 
                     SkillDetailData data = new SkillDetailData();
+                    data.show_levelup_reward = json[ key ][ "show_levelup_reward" ].ToObject< bool >();
+                    string usage = json[ key ][ "usage" ].ToString();
+                    data.usage = convertSkillUsageType( usage );
                     data.asset_address = json[ key ][ "asset_address" ].ToString();
                     JArray description = (JArray)json[ key ][ "description" ];
                     data.description = description.Select(c => (string)c).ToList();
@@ -79,6 +86,12 @@ namespace game
                     }
 
                     table.data.Add( Int32.Parse( key ), data );
+
+                    if( data.show_levelup_reward == true )
+                        table.pc_can_learn_uid.Add( Int32.Parse( key ) );
+
+                    if( data.usage == (int)SkillUsageType.ITEM )
+                        table.item_uid.Add( Int32.Parse( key ) );
                 }
             }
             catch( Exception e )
@@ -87,6 +100,18 @@ namespace game
             }
 
             return table;
+        }
+
+        public int convertSkillUsageType( string usage_org )
+        {
+            if( usage_org.Contains( "repeat" ) == true )
+                return (int)SkillUsageType.REPEAT;
+            if( usage_org.Contains( "once" ) == true )
+                return (int)SkillUsageType.ONCE;
+            if( usage_org.Contains( "item" ) == true )
+                return (int)SkillUsageType.ITEM;
+
+            return (int)SkillUsageType.NONE;
         }
 
         public async Task start( string file_name )
@@ -121,5 +146,14 @@ namespace game
 
             return task_id;
         }
+    }
+
+    public enum SkillUsageType
+    {
+        NONE = 0,
+        REPEAT,
+        ONCE,
+        ITEM,
+        MAX,
     }
 }

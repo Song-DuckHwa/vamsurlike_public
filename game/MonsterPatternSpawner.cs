@@ -68,7 +68,7 @@ namespace game
                 int loop_max_j = (int)monster.skill_index.Count;
                 for( ; j < loop_max_j ; ++j )
                 {
-                    enemy.skillmgr.learnMonsterSkill( monster.skill_index[ i ], enemy.uid );
+                    enemy.skillmgr.learnSkill( monster.skill_index[ i ], enemy.uid );
                 }
 
                 enemy.setStat( monster );
@@ -147,7 +147,7 @@ namespace game
                 int loop_max_j = (int)monster.skill_index.Count;
                 for( ; j < loop_max_j ; ++j )
                 {
-                    enemy.skillmgr.learnMonsterSkill( monster.skill_index[ i ], enemy.uid );
+                    enemy.skillmgr.learnSkill( monster.skill_index[ i ], enemy.uid );
                 }
 
                 enemy.setStat( monster );
