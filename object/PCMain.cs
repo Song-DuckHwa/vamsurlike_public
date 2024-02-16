@@ -8,12 +8,19 @@ using UnityEditor.Experimental.GraphView;
 
 namespace game
 {
+	/**
+	* PCMain
+	* 플레이어가 조종하는 pc 클래스
+	**/
     public class PCMain : PC
     {
         public int current_exp = 0;
         public int max_exp = 0;
         public int collect_dist = 0;
 
+		/**
+		* 초기화
+		**/
         public override void init()
         {
             level = 1;
@@ -38,6 +45,9 @@ namespace game
             current_exp = 0;
         }
 
+		/**
+		* 스탯 세팅
+		**/
         public void setStat( Level stat )
         {
             hp = (int)stat.hp;
@@ -46,6 +56,9 @@ namespace game
             max_exp = (int)stat.exp;
         }
 
+		/**
+		* 레벨업 시 hp 동기화
+		**/
         public void equalizingHP()
         {
             current_hp = hp;

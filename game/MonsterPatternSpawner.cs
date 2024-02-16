@@ -4,8 +4,16 @@ using UnityEngine;
 
 namespace game
 {
+	/**
+	* MonsterPatternSpawner
+	* 몬스터 스폰을 랜덤 스폰이 아닌 패턴식으로 할 경우 사용하는 클래스
+	**/
     public class MonsterPatternSpawner
     {
+		/**
+		* 데이터에서 스트링으로 된 데이터를 통해 어떤 패턴을 사용할 것인지 판단
+		* @wave_data - 스폰 테이블의 웨이브 데이터
+		**/
         public MonsterSpawner spawn( MonsterSpawnData wave_data )
         {
             string pattern_type = wave_data.pattern.ToLower();
@@ -25,6 +33,10 @@ namespace game
             return spawner;
         }
 
+		/**
+		* 세로 방향으로 늘어져 플레이어가 있는 곳을 향해 x축으로 전진
+		* @spawn_data - 스폰 테이블의 웨이브 데이터
+		**/
         public MonsterSpawner pressVerticalRail( MonsterSpawnData spawn_data )
         {
             MonsterSpawner spawner = new MonsterSpawner();
@@ -78,6 +90,7 @@ namespace game
                 enemy.move_dest = new Vector2( GameManager.mainch.transform.position.x, standard_y );
                 enemy_ins.SetActive( true );
 
+				//해당 웨이브가 스테이지 클리어에 필요한가
                 if( spawn_data.stage_clear == 1 )
                 {
                     if( GameManager.gamelogic.stage_clear_trigger == false )
@@ -90,6 +103,10 @@ namespace game
             return spawner;
         }
 
+		/**
+		* 우물 정(#)자로 플레이어를 가둠
+		* @spawn_data - 스폰 테이블의 웨이브 데이터
+		**/
         public MonsterSpawner colosseum( MonsterSpawnData spawn_data )
         {
             MonsterSpawner spawner = new MonsterSpawner();
@@ -157,6 +174,7 @@ namespace game
                 enemy.move_dest = new Vector2( GameManager.mainch.transform.position.x, standard_y );
                 enemy_ins.SetActive( true );
 
+				//해당 웨이브가 스테이지 클리어에 필요한가
                 if( spawn_data.stage_clear == 1 )
                 {
                     if( GameManager.gamelogic.stage_clear_trigger == false )

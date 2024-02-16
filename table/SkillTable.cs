@@ -1,4 +1,3 @@
-using game;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
@@ -16,22 +15,41 @@ using UnityEngine.ResourceManagement.AsyncOperations;
 
 namespace game
 {
+	/**
+	* SkillLevelData
+	* 스킬의 레벨 당 데이터
+	**/
     public class SkillLevelData
     {
         public int damage;
         public int radius;
+		//공격 빈도
         public int attack_tick;
+		//공격 오브젝트 발생 수
         public int objcount;
     }
+	/**
+	* SkillDetailData
+	* 스킬 하나의 기본 데이터
+	**/
     public class SkillDetailData
     {
+		//레벨업 시 보상목록에 보여지는가
         public bool show_levelup_reward;
+		//용법 - 스킬인지, 아이템인지
         public int usage;
+		//프리팹 address
         public string asset_address;
+		//설명
         public List< string > description;
+		//스킬의 레벨 당 데이터
         public List< SkillLevelData > level_data = new List< SkillLevelData >();
     }
-
+	/**
+	* SkillTableData
+	* 스킬 테이블의 가장 상단에 위치한 클래스.
+	* uid로 스킬 데이터를 찾고 해당 스킬을 pc가 배울 수 있는지, 아이템을 사용하는 스킬인지 판단.
+	**/
     public class SkillTableData
     {
         public Dictionary< int, SkillDetailData > data = new Dictionary<int, SkillDetailData>();
@@ -39,6 +57,10 @@ namespace game
         public SortedSet< int > item_uid = new SortedSet< int >();
     }
 
+	/**
+	* SkillTable
+	* 스킬 테이블을 파싱하여 데이터로 들고 있는 클래스
+	**/
     public class SkillTable
     {
         public List< Task< int > > task_list = new List< Task< int > >();
@@ -102,6 +124,9 @@ namespace game
             return table;
         }
 
+		/**
+		* string 형 데이터를 int형으로 변환
+		**/
         public int convertSkillUsageType( string usage_org )
         {
             if( usage_org.Contains( "repeat" ) == true )
@@ -114,6 +139,9 @@ namespace game
             return (int)SkillUsageType.NONE;
         }
 
+		/**
+		* 파일 로딩 시작
+		**/
         public async Task start( string file_name )
         {
             List< string > keys = new List< string >();
@@ -129,12 +157,17 @@ namespace game
 
             while( task_list.Count > 0 )
             {
+				//thread
                 var finish = await Task.WhenAny( task_list );
                 task_list.Remove( finish );
                 if( task_list.Count == 0 )
                     load_complete = true;
             }
         }
+
+		/**
+		* 파일 로딩 멀티쓰레드
+		**/
         public async Task<int> fileLoad( string key )
         {
             AsyncOperationHandle handle = Addressables.LoadAssetAsync< TextAsset >( key );

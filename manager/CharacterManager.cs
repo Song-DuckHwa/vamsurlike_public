@@ -8,6 +8,10 @@ using static UnityEngine.RuleTile.TilingRuleOutput;
 
 namespace game
 {
+	/**
+	* CharacterManager
+	* 생성되는 모든 캐릭터 객체를 관리
+	**/
     public class CharacterManager
     {
         public static CharacterManager instance = null;
@@ -23,12 +27,19 @@ namespace game
             current_uid = 0;
         }
 
+		/**
+		* 생성된 경험치 보석을 삭제
+		* @expgem_uid - 삭제할 경험치 보석의 uid
+		**/
         public bool deleteExpGem( int expgem_uid )
         {
             bool result = expgem_dic.Remove( expgem_uid );
             return result;
         }
 
+		/**
+		* 생성된 모든 경험치 보석을 삭제
+		**/
         public void resetExpGem()
         {
             int i = 0;
@@ -95,17 +106,28 @@ namespace game
             }
         }
 
-        //공격판정과 캐릭터들이 충돌하였는가
+		/**
+		* 사각형 공격판정과 캐릭터들이 충돌하였는가
+		* @hitbox - 공격의 BoxCollider2D
+		**/
         public List< int > attackCollideCheck( BoxCollider2D hitbox )
         {
             return CollideFuncs.attackCollideCheck( hitbox, char_dic );
         }
 
+		/**
+		* 원형 공격판정과 캐릭터들이 충돌하였는가
+		* @hitbox - 공격의 CircleCollider2D
+		**/
         public List< int > attackCollideCheck( CircleCollider2D hitbox )
         {
             return CollideFuncs.attackCollideCheck( hitbox, char_dic );
         }
 
+		/**
+		* 경험치 보석 생성
+		* @exp - 경험치 보석 습득 시 획득하는 경험치량
+		**/
         public GameObject addExpGem( int exp )
         {
             GameObject expgem = GameManager.poolmgr.instanceGet( "prefabs/object/exp" );
@@ -123,6 +145,9 @@ namespace game
             return expgem;
         }
 
+		/**
+		* 캐릭터가 적과 충돌 했는가
+		**/
         public void characterCollideProcess()
         {
             if( char_dic.Count > 1 )

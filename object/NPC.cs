@@ -4,6 +4,10 @@ using UnityEngine;
 
 namespace game
 {
+	/**
+	* Npc
+	* NPC 객체 클래스 - 적, npc 전부
+	**/
     public class Npc : MoveableObject
     {
         public int hp;
@@ -46,7 +50,9 @@ namespace game
                 state = (int)STATE.RUN;
         }
 
-        // Start is called before the first frame update
+        /**
+		* 시간제한이 있는 객체일 경우 세팅 - 콜로세움 패턴 같은 경우
+		**/
         void Start()
         {
             life_time = life_time != 0 ? life_time : int.MaxValue;
@@ -83,7 +89,9 @@ namespace game
             life_time = (int)lifetime;
         }
 
-        // Update is called once per frame
+        /**
+		* 시간제한이 있는 객체일 경우 라이프타임 관리
+		**/
         protected virtual void Update()
         {
             if( state != (int)STATE.DEAD && life_time <= 0 )
@@ -101,7 +109,6 @@ namespace game
             }
         }
 
-        //use rigidbody
         private void FixedUpdate()
         {
             //moveWithRigidBody();
@@ -113,6 +120,9 @@ namespace game
             }
         }
 
+		/**
+		* 리지드바디가 있는 경우 이동 로직
+		**/
         public virtual void moveWithRigidBody()
         {
             //move stop
@@ -139,6 +149,9 @@ namespace game
                 transform.localScale = new Vector3( 1, 1, 1 );
         }
 
+		/**
+		* 리지드바디가 없는 경우 이동 로직
+		**/
         public virtual void moveWithoutRigidBody()
         {
             //move stop
@@ -166,6 +179,9 @@ namespace game
             state = (int)STATE.RUN;
         }
 
+		/**
+		* 리지드바디가 있는 경우 피격 로직
+		**/
         public virtual void OnTriggerEnter2D( Collider2D collision )
         {
             if( collision.gameObject.CompareTag( "pc_attack" ) )
@@ -174,6 +190,11 @@ namespace game
             }
         }
 
+		/**
+		* 리지드바디가 없는 경우 피격 로직
+		* @hitter - 때린 사람
+		* @knockback_dist - 넉백 거리
+		**/
         public virtual void takeDamage( GameObject hitter, int knockback_dist )
         {
             GameManager.soundmgr.sfxs[ SFX.DAMAGE ].Play();

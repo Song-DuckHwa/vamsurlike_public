@@ -6,25 +6,29 @@ using UnityEngine.UI;
 
 namespace game
 {
+	/**
+	* UILevelupRewardScroll
+	* 레벨업 시 나오는 보상 목록이 있는 scroll rect를 관리
+	**/
     public class UILevelupRewardScroll : MonoBehaviour
     {
         public GraphicRaycaster canvas_raycaster;
-        public GameObject content;        
-        public List< UIRewardElement > elements = new List< UIRewardElement >();        
+        public GameObject content;
+        public List< UIRewardElement > elements = new List< UIRewardElement >();
         public RectTransform content_rect;
         public ScrollRect scroll_rect;
 
         public float top_pos;
         public float bottom_pos;
 
-        public float prev_scroll_move;        
+        public float prev_scroll_move;
         public int scroll_move_dist;
 
         public int top_uid;
         public int bottom_uid;
 
         public float button_size;
-        public int button_count;        
+        public int button_count;
 
         private void Awake()
         {
@@ -42,6 +46,9 @@ namespace game
             button_size = Mathf.Abs( elements[ 2 ].transform.position.y - elements[ 1 ].transform.position.y );
         }
 
+		/**
+		* 활성화 될 때 스크롤의 초기화 및 자동 움직임을 세팅
+		**/
         private void OnEnable()
         {
             top_uid = 0;
@@ -64,6 +71,9 @@ namespace game
             StartCoroutine( ScrollStop() );
         }
 
+		/**
+		* 코루틴으로 프레임별로 체크하면서 특정 속도에 이르렀을때 정확한 위치에 멈추는 애니메이션 실행
+		**/
         IEnumerator ScrollStop()
         {
             for( ; ; )
@@ -79,6 +89,9 @@ namespace game
             }
         }
 
+		/**
+		* 스크롤의 속도가 특정 속도 이하로 내려갔을 경우 1씩 움직이며 정확한 위치에서 스톱
+		**/
         IEnumerator ScrollLastAni()
         {
             int dist = 0;
@@ -92,6 +105,7 @@ namespace game
                 content.transform.localPosition = new Vector2( content.transform.localPosition.x, content.transform.localPosition.y + 1 );
                 if( dist == 0 )
                 {
+					//element가 회전 중이 끝났을 때 다시 상호작용 on
                     canvas_raycaster.enabled = true;
                     scroll_rect.vertical = false;
                     yield break;
@@ -101,6 +115,9 @@ namespace game
             }
         }
 
+		/**
+		* 스크롤의 속도가 특정 속도 이하로 내려갔을 경우 1씩 움직이며 정확한 위치에서 스톱
+		**/
         public void OnValueChanged( Vector2 pos )
         {
             int round_pos_y = (int)Mathf.Round( content.transform.localPosition.y );

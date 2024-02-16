@@ -103,6 +103,10 @@ namespace game
                 SettingComplete();
         }
 
+		/*
+		 * dpad에서 받은 데이터를 이용하여 캐릭터의 이동 방향을 전달
+		 * @value - 버추얼 패드 이동값 데이터 - vector로 옴
+		 */
         private void OnMove( InputValue value )
         {
             Vector2 input = value.Get<Vector2>();
@@ -122,6 +126,9 @@ namespace game
             }
         }
 
+		/*
+		 * 모든 테이블 및 프리팹 로딩이 완료되었다면 게임 씬을 로딩함
+		 */
         private void SettingComplete()
         {
             SceneManager.sceneLoaded += SceneChanged;

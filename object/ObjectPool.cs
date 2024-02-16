@@ -5,6 +5,10 @@ using UnityEngine.Pool;
 
 namespace game
 {
+	/**
+	* ObjectPool
+	* 오브젝트 풀링 로직
+	**/
     public class ObjectPool
     {
         public int cap;
@@ -19,6 +23,7 @@ namespace game
             pool_max = 10;
             Init();
         }
+
         private void Init()
         {
             pool = new ObjectPool< GameObject >(
