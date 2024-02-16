@@ -4,10 +4,10 @@ using UnityEngine;
 
 namespace game
 {
-	/**
-	* Orbit
-	* 캐릭터 주변을 공전하는 스킬
-	**/
+    /**
+    * Orbit
+    * 캐릭터 주변을 공전하는 스킬
+    **/
     public class Orbit : Skill
     {
         public float pos_deg;
@@ -19,9 +19,9 @@ namespace game
         //uid, next tick
         private Dictionary< int, int > next_hit_ticks = new Dictionary< int, int >();
 
-		/**
-		* 공전체의 위치를 계산하여 이동할 포지션 세팅
-		**/
+        /**
+        * 공전체의 위치를 계산하여 이동할 포지션 세팅
+        **/
         private void FixedUpdate()
         {
             calcOrbitPos();
@@ -70,9 +70,9 @@ namespace game
             }
         }
 
-		/**
-		* 스킬 발동
-		**/
+        /**
+        * 스킬 발동
+        **/
         public override bool active()
         {
             SkillDetailData table = getTableData();
@@ -112,7 +112,7 @@ namespace game
                 hitarea_pos.y = hitarea_dist * Mathf.Sin( rad );
 
                 ins.transform.localPosition = hitarea_pos + actor.transform.position;
-				//캐릭터 기준으로 보는 방향대로 회전해야 하므로 캐릭터를 부모로 놓는다
+                //캐릭터 기준으로 보는 방향대로 회전해야 하므로 캐릭터를 부모로 놓는다
                 ins.transform.SetParent( actor.transform );
                 ins.SetActive( true );
 
@@ -125,9 +125,9 @@ namespace game
             return false;
         }
 
-		/**
-		* 공전체의 위치를 계산하여 이동할 포지션 세팅
-		**/
+        /**
+        * 공전체의 위치를 계산하여 이동할 포지션 세팅
+        **/
         public void calcOrbitPos()
         {
             pos_deg += move_speed * Time.deltaTime;

@@ -7,10 +7,10 @@ using UnityEngine.UI;
 
 namespace game
 {
-	/**
-	* UIManager
-	* 인게임 안에서 보이는 hud들을 매니징
-	**/
+    /**
+    * UIManager
+    * 인게임 안에서 보이는 hud들을 매니징
+    **/
     public class UIManager : MonoBehaviour
     {
         public Canvas canvas;
@@ -37,9 +37,9 @@ namespace game
             time_text.text = time_str;
         }
 
-		/**
-		* 게임 시작 전 ui들을 초기화
-		**/
+        /**
+        * 게임 시작 전 ui들을 초기화
+        **/
         public void initUI()
         {
             exp_bar.init();
@@ -54,9 +54,9 @@ namespace game
             ui_levelup.init();
         }
 
-		/**
-		* 캐릭터 레벨업 시 관련 ui들을 업데이트
-		**/
+        /**
+        * 캐릭터 레벨업 시 관련 ui들을 업데이트
+        **/
         public void levelUp()
         {
             hp_bar.max_hp = GameManager.mainch.hp;
@@ -71,9 +71,9 @@ namespace game
             ui_levelup.gameObject.SetActive( true );
         }
 
-		/**
-		* 현재 게임의 진행 시간을 uimanager에 저장
-		**/
+        /**
+        * 현재 게임의 진행 시간을 uimanager에 저장
+        **/
         public void setCurrentTime( int game_time_msec )
         {
             current_game_time_msec = game_time_msec;

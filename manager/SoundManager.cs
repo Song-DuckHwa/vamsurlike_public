@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace game
 {
-	/*
+    /*
      * SoundManager
      * 프리팹 매니저와 비슷하게 사운드 소스를 로드하여 들고 있는 매니저
      */

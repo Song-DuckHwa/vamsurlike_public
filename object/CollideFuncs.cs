@@ -7,16 +7,16 @@ using UnityEngine.InputSystem;
 
 namespace game
 {
-	/**
-	* CollideFuncs
-	* 충돌 계산 함수들 관장 클래스
-	**/
+    /**
+    * CollideFuncs
+    * 충돌 계산 함수들 관장 클래스
+    **/
     public static class CollideFuncs
     {
         /**
-		* 원 - 원 충돌
-		* @char_dic - 생성된 캐릭터 uid 목록
-		**/
+        * 원 - 원 충돌
+        * @char_dic - 생성된 캐릭터 uid 목록
+        **/
         public static void check( Dictionary< int, Npc > char_dic )
         {
             //현재 방식으로는 앞에서 진행했던 오브젝트들 끼리의 중복체크가 일어나게 됨
@@ -66,9 +66,9 @@ namespace game
         }
 
         /**
-		* 원 - 원 충돌 레이캐스트로
-		* @char_dic - 생성된 캐릭터 uid 목록
-		**/
+        * 원 - 원 충돌 레이캐스트로
+        * @char_dic - 생성된 캐릭터 uid 목록
+        **/
         public static void check_raycast( Dictionary< int, Npc > char_dic )
         {
             //현재 방식으로는 앞에서 진행했던 오브젝트들 끼리의 중복체크가 일어나게 됨
@@ -124,10 +124,10 @@ namespace game
             }
         }
 
-		/**
-		* 사각 - 사각 충돌 - 현재 작동하지 않음
-		* @char_dic - 생성된 캐릭터 uid 목록
-		**/
+        /**
+        * 사각 - 사각 충돌 - 현재 작동하지 않음
+        * @char_dic - 생성된 캐릭터 uid 목록
+        **/
         public static void check_( Dictionary< int, Npc > char_dic )
         {
             int i = 0;
@@ -155,10 +155,10 @@ namespace game
         }
 
         /**
-		* 원형 충돌에서의 위치 롤백
-		* @main - 충돌 주체
-		* @col - 충돌 피격체
-		**/
+        * 원형 충돌에서의 위치 롤백
+        * @main - 충돌 주체
+        * @col - 충돌 피격체
+        **/
         public static void rollbackPosition( Npc main, Npc col )
         {
             float main_radius = main.ccol.radius * main.transform.localScale.x;
@@ -183,10 +183,10 @@ namespace game
         }
 
         /**
-		* 사각형 obb 충돌에서의 롤백 - 현재 작동하지 않음
-		* @main - 충돌 주체
-		* @col - 충돌 피격체
-		**/
+        * 사각형 obb 충돌에서의 롤백 - 현재 작동하지 않음
+        * @main - 충돌 주체
+        * @col - 충돌 피격체
+        **/
         public static void rollbackPositionOBB( GameObject main, GameObject col )
         {
             //magic
@@ -205,12 +205,12 @@ namespace game
             main.transform.Translate( rollback_pos );
         }
 
-		/**
-		* 원형 충돌에서 넉백
-		* @main - 충돌 주체
-		* @col - 충돌 피격체
-		* @knockback_dist - 넉백 거리
-		**/
+        /**
+        * 원형 충돌에서 넉백
+        * @main - 충돌 주체
+        * @col - 충돌 피격체
+        * @knockback_dist - 넉백 거리
+        **/
         public static void knockbackPosition( GameObject main, GameObject col, float knockback_dist )
         {
             knockback_dist = knockback_dist < 0 ? 1 : knockback_dist;
@@ -229,11 +229,11 @@ namespace game
             col.transform.Translate( rollback_pos );
         }
 
-		/**
-		* 사각형 obb 충돌 계산
-		* @main - 충돌 주체
-		* @col - 충돌 피격체
-		**/
+        /**
+        * 사각형 obb 충돌 계산
+        * @main - 충돌 주체
+        * @col - 충돌 피격체
+        **/
         public static bool rectToRectOBB( BoxCollider2D main, BoxCollider2D col )
         {
             float rad = main.transform.eulerAngles.z * Mathf.Deg2Rad;
@@ -278,11 +278,11 @@ namespace game
             return true;
         }
 
-		/**
-		* 원-사각형 충돌 - 사각형이 회전하면 못씀
-		* @circle - 충돌 객체가 가진 CircleCollider2D
-		* @rect - 충돌 피객체가 가진 BoxCollider2D의 rect만
-		**/
+        /**
+        * 원-사각형 충돌 - 사각형이 회전하면 못씀
+        * @circle - 충돌 객체가 가진 CircleCollider2D
+        * @rect - 충돌 피객체가 가진 BoxCollider2D의 rect만
+        **/
         public static bool circleToRectCollide( CircleCollider2D circle, Rect rect )
         {
 
@@ -333,11 +333,11 @@ namespace game
             return false;
         }
 
-		/**
-		* 점-사각형 충돌 - 사각형이 회전하면 못씀
-		* @point - 충돌 객체 위치
-		* @rect - 충돌 피객체가 가진 BoxCollider2D의 rect만
-		**/
+        /**
+        * 점-사각형 충돌 - 사각형이 회전하면 못씀
+        * @point - 충돌 객체 위치
+        * @rect - 충돌 피객체가 가진 BoxCollider2D의 rect만
+        **/
         public static bool pointToRectCollide( Vector2 point, Rect rect )
         {
             if( (rect.xMin <= point.x && point.x <= rect.xMax) &&

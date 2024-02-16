@@ -7,44 +7,44 @@ using UnityEngine.EventSystems;
 
 namespace game
 {
-	/**
-	* OnActionCollideArg
-	* 인게임 안에서 보이는 hud들을 매니징
-	**/
+    /**
+    * OnActionCollideArg
+    * 인게임 안에서 보이는 hud들을 매니징
+    **/
     public class OnActionCollideArg : EventArgs
     {
         public Tile tile;
         public int quadrant;
     }
 
-	/**
-	* OnActionTileCollideStart
-	* 인게임 안에서 보이는 hud들을 매니징
-	**/
+    /**
+    * OnActionTileCollideStart
+    * 인게임 안에서 보이는 hud들을 매니징
+    **/
     public class OnActionTileCollideStart : OnActionCollideArg
     {
     }
 
-	/**
-	* OnActionTileCollideIng
-	* 인게임 안에서 보이는 hud들을 매니징
-	**/
+    /**
+    * OnActionTileCollideIng
+    * 인게임 안에서 보이는 hud들을 매니징
+    **/
     public class OnActionTileCollideIng : OnActionCollideArg
     {
     }
 
-	/**
-	* OnActionTileCollideEnd
-	* 인게임 안에서 보이는 hud들을 매니징
-	**/
+    /**
+    * OnActionTileCollideEnd
+    * 인게임 안에서 보이는 hud들을 매니징
+    **/
     public class OnActionTileCollideEnd : OnActionCollideArg
     {
     }
 
-	/**
-	* Tile
-	* 1024 x 1024 타일 객체
-	**/
+    /**
+    * Tile
+    * 1024 x 1024 타일 객체
+    **/
     public class Tile : Entity
     {
         private int collide_state = (int)CollideState.NONE;
@@ -54,9 +54,9 @@ namespace game
         public UnityAction< OnActionTileCollideIng > OnCollideIng;
         public UnityAction< OnActionTileCollideEnd > OnCollideEnd;
 
-		/**
-		* 캐릭터가 현재 타일의 어느 사분면에 있는지 계산
-		**/
+        /**
+        * 캐릭터가 현재 타일의 어느 사분면에 있는지 계산
+        **/
         public int calcQuadrant()
         {
             Vector3 mainch_pos = GameManager.mainch.transform.position;
@@ -85,9 +85,9 @@ namespace game
             return quadrant;
         }
 
-		/**
-		* 캐릭터가 현재 타일의 어느 사분면에 있는지 찾아 나머지 타일들을 이동시켜 무한맵 처럼 보이게 함
-		**/
+        /**
+        * 캐릭터가 현재 타일의 어느 사분면에 있는지 찾아 나머지 타일들을 이동시켜 무한맵 처럼 보이게 함
+        **/
         public void Update()
         {
             if( GameManager.mainch == null )

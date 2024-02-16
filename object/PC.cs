@@ -7,10 +7,10 @@ using static UnityEngine.GraphicsBuffer;
 
 namespace game
 {
-	/**
-	* PC
-	* 플레이어가 조종하지 않는 pc 클래스
-	**/
+    /**
+    * PC
+    * 플레이어가 조종하지 않는 pc 클래스
+    **/
     public class PC : Npc
     {
         public GameObject attack_effect;
@@ -33,9 +33,9 @@ namespace game
             init();
         }
 
-		/**
-		* 필요한 컴포넌트 등록
-		**/
+        /**
+        * 필요한 컴포넌트 등록
+        **/
         protected override void initCompos()
         {
             GameObject sprite = transform.GetChild( 0 ).gameObject;
@@ -63,9 +63,9 @@ namespace game
             invincible_time_msec = 0;
         }
 
-		/**
-		* 이동 관련 업데이트
-		**/
+        /**
+        * 이동 관련 업데이트
+        **/
         protected virtual void FixedUpdate()
         {
             //moveWithRigidBody();
@@ -78,9 +78,9 @@ namespace game
             ani.SetInteger( "velocity", velocity );
         }
 
-		/**
-		* 리지드바디를 사용할 경우 이동 로직
-		**/
+        /**
+        * 리지드바디를 사용할 경우 이동 로직
+        **/
         public override void moveWithRigidBody()
         {
             //Move.Action();
@@ -97,9 +97,9 @@ namespace game
             GetComponent<Rigidbody2D>().velocity = dest_vec;
         }
 
-		/**
-		* 리지드바디를 사용하지 않는 경우 이동 로직
-		**/
+        /**
+        * 리지드바디를 사용하지 않는 경우 이동 로직
+        **/
         public override void moveWithoutRigidBody()
         {
             spr.flipX = (direction.x < 0);
@@ -119,9 +119,9 @@ namespace game
                 state = (int)STATE.RUN;
         }
 
-		/**
-		* 바라보는 방향으로 공격 방향 회전
-		**/
+        /**
+        * 바라보는 방향으로 공격 방향 회전
+        **/
         public void rotateAttackDir()
         {
             Vector2 dir = direction;
@@ -136,9 +136,9 @@ namespace game
             attack_dir_effect.transform.eulerAngles = new Vector3( 0, 0, deg );
         }
 
-		/**
-		* 리지드바디를 사용할 경우 적과의 충돌
-		**/
+        /**
+        * 리지드바디를 사용할 경우 적과의 충돌
+        **/
         public override void OnTriggerEnter2D( Collider2D collision )
         {
             if( collision.gameObject.CompareTag( "enemy" ) )
@@ -147,9 +147,9 @@ namespace game
             }
         }
 
-		/**
-		* 리지드바디를 사용하지 않는 경우 적과의 충돌
-		**/
+        /**
+        * 리지드바디를 사용하지 않는 경우 적과의 충돌
+        **/
         public override void enemyCollide()
         {
             int currect_game_time = GameManager.getCurrentGameTime();
@@ -160,21 +160,21 @@ namespace game
         }
 
         /**
-		* 이동 방향
-		* @h - horizontal
-		* @v - vertical
-		**/
+        * 이동 방향
+        * @h - horizontal
+        * @v - vertical
+        **/
         public void move( int h, int v )
         {
             direction = new Vector3( h, v, 0 );
             //direction = new Vector3( 1, 1, 0 );
         }
 
-		/**
-		* 데미지를 입었을 경우 로직 처리
-		* @hitter - 때린 사람
-		* @knockback_dist - 넉백 거리
-		**/
+        /**
+        * 데미지를 입었을 경우 로직 처리
+        * @hitter - 때린 사람
+        * @knockback_dist - 넉백 거리
+        **/
         public override void takeDamage( GameObject hitter, int knockback_dist )
         {
             GameManager.soundmgr.sfxs[ SFX.PCDAMAGE ].Play();
@@ -189,9 +189,9 @@ namespace game
             ani.SetTrigger( "Damage" );
         }
 
-		/**
-		* 테스트 용 데미지를 입었을 경우 로직 처리
-		**/
+        /**
+        * 테스트 용 데미지를 입었을 경우 로직 처리
+        **/
         public virtual void takeDamage()
         {
             GameManager.soundmgr.sfxs[ SFX.PCDAMAGE ].Play();
@@ -206,9 +206,9 @@ namespace game
             ani.SetTrigger( "Damage" );
         }
 
-		/**
-		* 테스트 용 데미지를 입었을 경우 로직 처리
-		**/
+        /**
+        * 테스트 용 데미지를 입었을 경우 로직 처리
+        **/
         public virtual void takeDamage_test()
         {
             GameManager.soundmgr.sfxs[ SFX.PCDAMAGE ].Play();
@@ -223,18 +223,18 @@ namespace game
             ani.SetTrigger( "Damage" );
         }
 
-		/**
-		* 캐릭터 죽음 처리
-		**/
+        /**
+        * 캐릭터 죽음 처리
+        **/
         public override void die()
         {
             ani.SetTrigger( "Dead" );
             state = (int)STATE.DEAD;
         }
 
-		/**
-		* 캐릭터 공격 - 현재 사용하지 않음( 일반 공격까지 스킬로 만들어서 스킬매니저로 빠짐 )
-		**/
+        /**
+        * 캐릭터 공격 - 현재 사용하지 않음( 일반 공격까지 스킬로 만들어서 스킬매니저로 빠짐 )
+        **/
         public void attack()
         {
             Vector2 dir = direction;
@@ -254,9 +254,9 @@ namespace game
             */
         }
 
-		/**
-		* 공격 종료 시 공격 판정 끄는 코루틴 - 현재 사용하지 않음
-		**/
+        /**
+        * 공격 종료 시 공격 판정 끄는 코루틴 - 현재 사용하지 않음
+        **/
         IEnumerator attack_end()
         {
             Vector3 effect_pos = attack_effect.transform.position;

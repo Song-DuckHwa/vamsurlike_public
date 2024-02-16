@@ -5,10 +5,10 @@ using UnityEngine;
 
 namespace game
 {
-	/**
-	* RectIndicator
-	* 보스의 스킬 등 사정거리나 타이밍을 보여주는 인디케이터
-	**/
+    /**
+    * RectIndicator
+    * 보스의 스킬 등 사정거리나 타이밍을 보여주는 인디케이터
+    **/
     public class RectIndicator : MonoBehaviour
     {
         public GameObject timer;
@@ -31,9 +31,9 @@ namespace game
             spr_renderer = edge.GetComponent< SpriteRenderer >();
         }
 
-		/**
-		* 인디케이터 활성화 시 초기화
-		**/
+        /**
+        * 인디케이터 활성화 시 초기화
+        **/
         private void OnEnable()
         {
             start_time = GameManager.getCurrentGameTime();
@@ -60,14 +60,14 @@ namespace game
 
             followFlip();
 
-			//시전 시간에 따라 타이머의 스케일을 조절하여 언제 쯤 공격하는지 알려준다
+            //시전 시간에 따라 타이머의 스케일을 조절하여 언제 쯤 공격하는지 알려준다
             float lerp = Mathf.Lerp( 0, (size.y * 0.01f), (GameManager.getCurrentGameTime() - start_time) / (end_time - start_time) );
             timer.transform.localScale = new Vector3( (size.x * 0.01f), lerp, 1f );
         }
 
-		/**
-		* 모든 위치 및 스케일의 값이 확정난 이후 스케일 조정
-		**/
+        /**
+        * 모든 위치 및 스케일의 값이 확정난 이후 스케일 조정
+        **/
         void LateUpdate()
         {
             Vector3 new_scale = new Vector3(
@@ -83,10 +83,10 @@ namespace game
             size = new Vector2( width, height );
         }
 
-		/**
-		* 캐릭터에서 발사되는 경우 캐릭터를 따라다니게 하기 위한 기능
-		* @uid - 시전자의 uid
-		**/
+        /**
+        * 캐릭터에서 발사되는 경우 캐릭터를 따라다니게 하기 위한 기능
+        * @uid - 시전자의 uid
+        **/
         public void attachCharacter( int uid )
         {
             Npc actor = GameManager.charmgr.find( uid );
@@ -98,9 +98,9 @@ namespace game
             followFlip();
         }
 
-		/**
-		* 시전 캐릭터가 flip 시 같이 flip
-		**/
+        /**
+        * 시전 캐릭터가 flip 시 같이 flip
+        **/
         public void followFlip()
         {
             if( follower_spr_renderer.flipX == true )
@@ -115,9 +115,9 @@ namespace game
             timer.transform.position = pos;
         }
 
-		/**
-		* 사용 종료 후 destroy
-		**/
+        /**
+        * 사용 종료 후 destroy
+        **/
         public void die()
         {
             target = null;

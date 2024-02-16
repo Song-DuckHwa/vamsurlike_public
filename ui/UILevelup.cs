@@ -8,10 +8,10 @@ using UnityEngine.UI;
 
 namespace game
 {
-	/**
-	* UILevelup
-	* 레벨업 시 나오는 스탯, 보상을 보여주는 전체 화면 ui
-	**/
+    /**
+    * UILevelup
+    * 레벨업 시 나오는 스탯, 보상을 보여주는 전체 화면 ui
+    **/
     public class UILevelup : MonoBehaviour
     {
         public List< Button > rewardbutton_list = new List< Button >();
@@ -27,7 +27,7 @@ namespace game
             for( int i = 0 ; i < rewardbutton_list.Count ; ++i )
                 rewardbutton_list[ i ].onClick.RemoveAllListeners();
 
-			//리스너 등록
+            //리스너 등록
             rewardbutton_list[ 0 ].onClick.AddListener( () => OnRewardClick( 0 ) );
             rewardbutton_list[ 1 ].onClick.AddListener( () => OnRewardClick( 1 ) );
             rewardbutton_list[ 2 ].onClick.AddListener( () => OnRewardClick( 2 ) );
@@ -48,18 +48,18 @@ namespace game
             stat_list[ "dist" ].text = GameManager.mainch.collect_dist.ToString();
         }
 
-		/**
-		* 보상 버튼 클릭 시 콜백
-		**/
+        /**
+        * 보상 버튼 클릭 시 콜백
+        **/
         public void OnRewardClick( int button_index )
         {
             GameManager.gamelogic.addItemMainPC( button_index );
             GameManager.soundmgr.sfxs[ SFX.BUTTONCLICK ].Play();
         }
 
-		/**
-		* 보상 버튼에 보상 데이터를 배치
-		**/
+        /**
+        * 보상 버튼에 보상 데이터를 배치
+        **/
         public void setRewards( List< ItemData > reward_list )
         {
             int i = 0;
@@ -70,9 +70,9 @@ namespace game
             }
         }
 
-		/**
-		* 왼쪽 캐릭터 스탯 갱신
-		**/
+        /**
+        * 왼쪽 캐릭터 스탯 갱신
+        **/
         public void refreshStat()
         {
             stat_list[ "hp" ].text = GameManager.mainch.hp.ToString();

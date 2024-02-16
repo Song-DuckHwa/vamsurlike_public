@@ -7,7 +7,7 @@ using UnityEngine.ResourceManagement.AsyncOperations;
 
 namespace game
 {
-	/*
+    /*
      * PrefabManager
      * 프리팹들을 로딩해서 메모리에 올려놓고 관리하는 매니저
      */

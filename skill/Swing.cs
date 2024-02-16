@@ -7,10 +7,10 @@ using UnityEngine.UIElements;
 
 namespace game
 {
-	/**
-	* Swing
-	* 근접 공격 스킬
-	**/
+    /**
+    * Swing
+    * 근접 공격 스킬
+    **/
     public class Swing : Skill
     {
         Vector3 direction;
@@ -57,9 +57,9 @@ namespace game
             }
         }
 
-		/**
-		* 스킬 발동
-		**/
+        /**
+        * 스킬 발동
+        **/
         public override bool active()
         {
             SkillDetailData table = getTableData();
@@ -72,7 +72,7 @@ namespace game
             if( actor == null )
                 return true;
 
-			//테이블에서 스킬 데이터 취득
+            //테이블에서 스킬 데이터 취득
             SkillLevelData table_level_data = table.level_data[ level - 1 ];
 
             int i = 0;
@@ -84,7 +84,7 @@ namespace game
                     direction = new Vector3( 1f, 0f, 0f );
 
                 direction.Normalize();
-				//오브젝트 풀에서 인스턴스 get
+                //오브젝트 풀에서 인스턴스 get
                 GameObject ins = GameManager.poolmgr.instanceGet( table.asset_address );
                 if( ins == null )
                     return true;
@@ -93,15 +93,15 @@ namespace game
                 script.collider_compo = ins.GetComponent< BoxCollider2D >();
                 script.hitted_targets_set.Clear();
 
-				//캐릭터 기준으로 보는 방향대로 회전해야 하므로 캐릭터를 부모로 놓는다
+                //캐릭터 기준으로 보는 방향대로 회전해야 하므로 캐릭터를 부모로 놓는다
                 ins.transform.SetParent( GameManager.mainch.transform );
 
-				//공격 판정에 맞춰 스프라이트의 scale 조정
+                //공격 판정에 맞춰 스프라이트의 scale 조정
                 SpriteRenderer skill_sps_renderer = script.sprite.GetComponent< SpriteRenderer >();
                 float scale = table_level_data.radius / ( (skill_sps_renderer.sprite.bounds.size.y * 0.5f) + Mathf.Abs( script.sprite.transform.localPosition.x ) );
                 ins.transform.localScale = new Vector3( scale, 1f, 1f );
 
-				//캐릭터의 방향에 맞춰 스프라이트를 회전
+                //캐릭터의 방향에 맞춰 스프라이트를 회전
                 Vector2 dir = direction;
                 int total_deg = 20 * (loop_max - 1);
                 float offset_deg = (i * 20) - (total_deg * 0.5f);
@@ -121,11 +121,11 @@ namespace game
                 ani.SetTrigger( "play" );
                 GameManager.soundmgr.sfxs[ SFX.SWING ].Play();
 
-				//생성한 오브젝트를 나중에 삭제하기 위해 매니저에 등록
+                //생성한 오브젝트를 나중에 삭제하기 위해 매니저에 등록
                 ins_list.Add( script );
             }
 
-			//반복 시간 후 다시 발동
+            //반복 시간 후 다시 발동
             repeat_time_msec += table_level_data.attack_tick;
 
             return false;

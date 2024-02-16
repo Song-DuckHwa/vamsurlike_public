@@ -5,10 +5,10 @@ using UnityEngine.Pool;
 
 namespace game
 {
-	/**
-	* ObjectPool
-	* 오브젝트 풀링 로직
-	**/
+    /**
+    * ObjectPool
+    * 오브젝트 풀링 로직
+    **/
     public class ObjectPool
     {
         public int cap;

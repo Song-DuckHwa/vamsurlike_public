@@ -7,10 +7,10 @@ using static UnityEngine.GraphicsBuffer;
 
 namespace game
 {
-	/**
-	* ExpGem
-	* 경험치 보석 오브젝트
-	**/
+    /**
+    * ExpGem
+    * 경험치 보석 오브젝트
+    **/
     public class ExpGem : MoveableObject
     {
         public int uid;
@@ -31,9 +31,9 @@ namespace game
             StartCoroutine( "GenerateAni" );
         }
 
-		/**
-		* 생성 되는 순간 튀어나가는 효과를 보이는 이동 코루틴
-		**/
+        /**
+        * 생성 되는 순간 튀어나가는 효과를 보이는 이동 코루틴
+        **/
         IEnumerator GenerateAni()
         {
             //0~359
@@ -77,14 +77,14 @@ namespace game
             if( target == null || target.gameObject == null )
                 return;
 
-			//생성이 완료 되었을 경우 주변에 캐릭터가 있는지 확인하여 캐릭터가 있다면 캐릭터를 추적함
+            //생성이 완료 되었을 경우 주변에 캐릭터가 있는지 확인하여 캐릭터가 있다면 캐릭터를 추적함
             if( gen_complete == true )
                 followCharacter();
         }
 
-		/**
-		* 생성이 완료 되었을 경우 주변에 캐릭터가 있는지 확인하여 캐릭터가 있다면 캐릭터를 추적함
-		**/
+        /**
+        * 생성이 완료 되었을 경우 주변에 캐릭터가 있는지 확인하여 캐릭터가 있다면 캐릭터를 추적함
+        **/
         public void followCharacter()
         {
             float dist = Vector2.Distance( target.transform.position, transform.position );
