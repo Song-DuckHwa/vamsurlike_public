@@ -31,7 +31,7 @@ namespace game
         //레벨업 시 보상목록에 보여지는가
         public bool show_levelup_reward;
         //용법 - 스킬인지, 아이템인지
-        public int usage;
+        public SkillUsageType usage;
         //프리팹 address
         public string asset_address;
         //설명
@@ -81,8 +81,7 @@ namespace game
 
                     SkillDetailData data = new SkillDetailData();
                     data.show_levelup_reward = json[ key ][ "show_levelup_reward" ].ToObject< bool >();
-                    string usage = json[ key ][ "usage" ].ToString();
-                    data.usage = convertSkillUsageType( usage );
+                    Enum.TryParse( json[ key ][ "usage" ].ToString(), out data.usage );
                     data.asset_address = json[ key ][ "asset_address" ].ToString();
                     JArray description = (JArray)json[ key ][ "description" ];
                     data.description = description.Select(c => (string)c).ToList();
@@ -106,7 +105,7 @@ namespace game
                     if( data.show_levelup_reward == true )
                         table.pc_can_learn_uid.Add( Int32.Parse( key ) );
 
-                    if( data.usage == (int)SkillUsageType.ITEM )
+                    if( data.usage == SkillUsageType.ITEM )
                         table.item_uid.Add( Int32.Parse( key ) );
                 }
             }
@@ -137,8 +136,7 @@ namespace game
 
                     SkillDetailData data = new SkillDetailData();
                     data.show_levelup_reward = json[ key ][ "show_levelup_reward" ].ToObject< bool >();
-                    string usage = json[ key ][ "usage" ].ToString();
-                    data.usage = convertSkillUsageType( usage );
+                    Enum.TryParse( json[ key ][ "usage" ].ToString(), out data.usage );
                     data.asset_address = json[ key ][ "asset_address" ].ToString();
                     JArray description = (JArray)json[ key ][ "description" ];
                     data.description = description.Select(c => (string)c).ToList();

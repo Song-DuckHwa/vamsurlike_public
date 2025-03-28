@@ -1,7 +1,5 @@
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
@@ -18,9 +16,6 @@ namespace game
         public static GameManager instance = null;
         public CharacterManager charmgr_ = new CharacterManager();
         public static CharacterManager charmgr => instance.charmgr_;
-
-        public TableManager tablemgr_ = new TableManager();
-        public static TableManager tablemgr => instance.tablemgr_;
 
         public SkillManager skillmgr_ = new SkillManager();
         public static SkillManager skillmgr => instance.skillmgr_;
@@ -97,8 +92,8 @@ namespace game
 
             charmgr.init();
 
-            await tablemgr.loadTable();
-            bool result = tablemgr.load_complete;
+            await TableManager.Instance.loadTable();
+            bool result = TableManager.Instance.load_complete;
             if( result )
                 SettingComplete();
         }

@@ -24,7 +24,7 @@ namespace game
             bgm = bgm_ins.GetComponent< AudioSource >();
             bgm_ins.SetActive( true );
 
-            if( GameManager.tablemgr.tables.TryGetValue( typeof( string ), out var sound_table ) )
+            if( TableManager.Instance.tables.TryGetValue( typeof( string ), out var sound_table ) )
             {
                 Dictionary< int, string > sound_tables = sound_table as Dictionary< int, string >;
                 //0은 bgm

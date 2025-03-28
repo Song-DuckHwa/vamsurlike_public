@@ -16,8 +16,8 @@ namespace game
         **/
         public void add()
         {
-            List< int > pc_can_learn_skills = new List< int >( GameManager.tablemgr.PCCanLearnSkills );
-            List< int > item_uid = new List< int >( GameManager.tablemgr.ItemSkills );
+            List< int > pc_can_learn_skills = new List< int >( TableManager.Instance.PCCanLearnSkills );
+            List< int > item_uid = new List< int >( TableManager.Instance.ItemSkills );
 
             int loop_max = GameManager.gamelogic.uimgr.ui_levelup.rewardbutton_list.Count;
             for( ; reward_list.Count < loop_max ; )
@@ -48,7 +48,7 @@ namespace game
                 reward.skill_index = (inven != null) ? inven.skill_index : random_skill_index;
                 reward.level = (inven != null) ? inven.level : -1;
 
-                SkillDetailData skill = GameManager.tablemgr.Get< SkillDetailData >( random_skill_index );
+                SkillDetailData skill = TableManager.Instance.Get< SkillDetailData >( random_skill_index );
                 if( skill == null )
                 {
 #if UNITY_EDITOR

@@ -28,7 +28,7 @@ namespace game
             current_stage_number = stage_number;
             current_wave_number = 0;
 
-            List< MonsterSpawnData > wave_list = GameManager.tablemgr.Get< List< MonsterSpawnData > >( stage_number );
+            List< MonsterSpawnData > wave_list = TableManager.Instance.Get< List< MonsterSpawnData > >( stage_number );
             next_wave_data = wave_list[ current_wave_number ];
         }
 
@@ -63,7 +63,7 @@ namespace game
 
                     current_wave_number += 1;
 
-                    List< MonsterSpawnData > wave_list = GameManager.tablemgr.Get< List< MonsterSpawnData > >( current_stage_number );
+                    List< MonsterSpawnData > wave_list = TableManager.Instance.Get< List< MonsterSpawnData > >( current_stage_number );
                     if( current_wave_number < wave_list.Count )
                     {
                         next_wave_data = wave_list[ current_wave_number ];
