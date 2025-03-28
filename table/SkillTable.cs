@@ -1,16 +1,10 @@
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Web;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
-using UnityEngine.InputSystem;
 using UnityEngine.ResourceManagement.AsyncOperations;
 
 namespace game
@@ -68,7 +62,7 @@ namespace game
         public SkillTableData table;
         public bool load_complete = false;
 
-        public SkillTableData parse()
+        public SkillTableData _parse()
         {
             string json_str = table_org.ToString();
 
@@ -124,9 +118,56 @@ namespace game
             return table;
         }
 
-        /**
-        * string 형 데이터를 int형으로 변환
-        **/
+        public Dictionary< int, SkillDetailData > parse()
+        {
+            string json_str = table_org.ToString();
+
+            Dictionary< int, SkillDetailData > table = new Dictionary< int, SkillDetailData >();
+
+            try
+            {
+                JObject json = JObject.Parse( json_str );
+
+                IList< JProperty > prop = json.Properties().ToList();
+                int i = 0 ;
+                int loop_max = prop.Count;
+                for( ; i < loop_max ; ++i )
+                {
+                    string key = prop[ i ].Name.ToString();
+
+                    SkillDetailData data = new SkillDetailData();
+                    data.show_levelup_reward = json[ key ][ "show_levelup_reward" ].ToObject< bool >();
+                    string usage = json[ key ][ "usage" ].ToString();
+                    data.usage = convertSkillUsageType( usage );
+                    data.asset_address = json[ key ][ "asset_address" ].ToString();
+                    JArray description = (JArray)json[ key ][ "description" ];
+                    data.description = description.Select(c => (string)c).ToList();
+
+                    JArray level_data = (JArray)json[ key ][ "level" ];
+                    int j = 0 ;
+                    int loop_max_j = level_data.Count;
+                    for( ; j < loop_max_j ; ++j )
+                    {
+                        SkillLevelData level = new SkillLevelData();
+                        level.damage = Int32.Parse( level_data[ j ][ "damage" ].ToString() );
+                        level.radius = Int32.Parse( level_data[ j ][ "radius" ].ToString() );
+                        level.attack_tick = Int32.Parse( level_data[ j ][ "attack_tick" ].ToString() );
+                        level.objcount = Int32.Parse( level_data[ j ][ "objcount" ].ToString() );
+
+                        data.level_data.Add( level );
+                    }
+
+                    table.Add( Int32.Parse( key ), data );
+                }
+            }
+            catch( Exception e )
+            {
+                Debug.Log( e );
+            }
+
+            return table;
+        }
+
         public int convertSkillUsageType( string usage_org )
         {
             if( usage_org.Contains( "repeat" ) == true )

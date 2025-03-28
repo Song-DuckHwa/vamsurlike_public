@@ -63,18 +63,20 @@ namespace game
 
                 Vector3 spawn_pos = new Vector3( standard_x, standard_y, 0 );
 
-                string prefab_name = $"prefabs/object/{GameManager.tablemgr.monster.monster_data[ spawn_data.monster_name ].prefab_name}";
+                Monster table_data = GameManager.tablemgr.Get< Monster >( spawn_data.monster_name );
+                string prefab_name = $"prefabs/object/{table_data.prefab_name}";
                 GameObject enemy_ins = GameManager.poolmgr.instanceGet( prefab_name );
                 if( enemy_ins == null )
                     return null;
 
                 Npc enemy = GameManager.charmgr.add( enemy_ins );
+
                 Monster monster = new Monster();
-                monster.hp = (int)GameManager.tablemgr.monster.monster_data[ spawn_data.monster_name ].hp;
-                monster.atk = (int)GameManager.tablemgr.monster.monster_data[ spawn_data.monster_name ].atk;
-                monster.move_speed = (int)GameManager.tablemgr.monster.monster_data[ spawn_data.monster_name ].move_speed;
-                monster.exp = (int)GameManager.tablemgr.monster.monster_data[ spawn_data.monster_name ].exp;
-                monster.skill_index = GameManager.tablemgr.monster.monster_data[ spawn_data.monster_name ].skill_index;
+                monster.hp = table_data.hp;
+                monster.atk = table_data.atk;
+                monster.move_speed = table_data.move_speed;
+                monster.exp = table_data.exp;
+                monster.skill_index = table_data.skill_index;
 
                 int j = 0;
                 int loop_max_j = (int)monster.skill_index.Count;
@@ -147,18 +149,19 @@ namespace game
 
                 Vector3 spawn_pos = new Vector3( standard_x, standard_y, 0 );
 
-                string prefab_name = $"prefabs/object/{GameManager.tablemgr.monster.monster_data[ spawn_data.monster_name ].prefab_name}";
+                Monster table_data = GameManager.tablemgr.Get< Monster >( spawn_data.monster_name );
+                string prefab_name = $"prefabs/object/{table_data.prefab_name}";
                 GameObject enemy_ins = GameManager.poolmgr.instanceGet( prefab_name );
                 if( enemy_ins == null )
                     return null;
 
                 Npc enemy = GameManager.charmgr.add( enemy_ins );
                 Monster monster = new Monster();
-                monster.hp = (int)GameManager.tablemgr.monster.monster_data[ spawn_data.monster_name ].hp;
-                monster.atk = (int)GameManager.tablemgr.monster.monster_data[ spawn_data.monster_name ].atk;
-                monster.move_speed = (int)GameManager.tablemgr.monster.monster_data[ spawn_data.monster_name ].move_speed;
-                monster.exp = (int)GameManager.tablemgr.monster.monster_data[ spawn_data.monster_name ].exp;
-                monster.skill_index = GameManager.tablemgr.monster.monster_data[ spawn_data.monster_name ].skill_index;
+                monster.hp = table_data.hp;
+                monster.atk = table_data.atk;
+                monster.move_speed = table_data.move_speed;
+                monster.exp = table_data.exp;
+                monster.skill_index = table_data.skill_index;
 
                 int j = 0;
                 int loop_max_j = (int)monster.skill_index.Count;

@@ -1,9 +1,6 @@
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
 using UnityEngine;
-using static UnityEngine.InputSystem.LowLevel.InputStateHistory;
 
 namespace game
 {
@@ -20,32 +17,65 @@ namespace game
         **/
         public void add()
         {
-            List< int > keys = GameManager.tablemgr.skill.data.Keys.ToList();
+            List< int > pc_can_learn_skills = new List< int >( GameManager.tablemgr.PCCanLearnSkills );
+            List< int > item_uid = new List< int >( GameManager.tablemgr.ItemSkills );
 
             int loop_max = GameManager.gamelogic.uimgr.ui_levelup.rewardbutton_list.Count;
             for( ; reward_list.Count < loop_max ; )
             {
-                int random_index = Random.Range( 0, keys.Count );
+                int random_index = 0;
+                int random_skill_index = 0;
+                bool add_item = false;
 
-                GameManager.gamelogic.inventory.inven.TryGetValue( keys[ random_index ] , out ItemData inven );
+                int generate_item = Random.Range( 0, 100 );
 
-                ItemData reward = new ItemData();
-                reward.skill_index = (inven != null) ? inven.skill_index : keys[ random_index ];
-                reward.level = (inven != null) ? inven.level : -1;
-
-                //스킬의 만렙이 7이므로 (6인 이유는 0부터 시작해서) 7인 스킬이 뽑혔을 경우 다른 스킬을 찾는다.
-                const int MAX_SKILL_LEVEL = 6;
-                if( reward.level == MAX_SKILL_LEVEL )
+                //더 이상 배울 스킬이 없을 경우 아이템으로 대체
+                //10% 확률로 아이템으로 대체
+                if( pc_can_learn_skills.Count != 0 && generate_item > 9 )
                 {
-                    keys.RemoveAt( random_index );
-                    continue;
+                    random_index = Random.Range( 0, pc_can_learn_skills.Count );
+                    random_skill_index = pc_can_learn_skills[ random_index ];
+                }
+                else
+                {
+                    random_index = Random.Range( 0, item_uid.Count );
+                    random_skill_index = item_uid[ random_index ];
+                    add_item = true;
                 }
 
-                //그 외인 경우 레벨을 1씩 증가시킨다.
-                reward.level += 1;
+                GameManager.gamelogic.inventory.inven.TryGetValue( random_skill_index , out ItemData inven );
+
+                ItemData reward = new ItemData();
+                reward.skill_index = (inven != null) ? inven.skill_index : random_skill_index;
+                reward.level = (inven != null) ? inven.level : -1;
+
+                SkillDetailData skill = GameManager.tablemgr.Get< SkillDetailData >( random_skill_index );
+                if( skill == null )
+                {
+#if UNITY_EDITOR
+                    Debug.Log( $"cant find skill data - {random_skill_index}" );
+#endif
+                    break;
+                }
+
+                if( add_item == false )
+                {
+                    int max_level_data = skill.level_data.Count;
+                    if( (reward.level + 1) >= max_level_data )
+                    {
+                        pc_can_learn_skills.RemoveAt( random_index );
+                        continue;
+                    }
+
+                    reward.level += 1;
+                    pc_can_learn_skills.RemoveAt( random_index );
+                }
+                else
+                {
+                    reward.level = 0;
+                }
 
                 reward_list.Add( reward );
-                keys.RemoveAt( random_index );
             }
         }
 

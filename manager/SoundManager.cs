@@ -1,5 +1,3 @@
-using game;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -26,20 +24,26 @@ namespace game
             bgm = bgm_ins.GetComponent< AudioSource >();
             bgm_ins.SetActive( true );
 
-
-            int i = 1;
-            int loop_max = GameManager.tablemgr.sound.Count;
-            for( ; i < loop_max ; ++i )
+            if( GameManager.tablemgr.tables.TryGetValue( typeof( string ), out var sound_table ) )
             {
-                string asset_address = GameManager.tablemgr.sound[ i ];
-                GameObject sfx_org = GameManager.prefabmgr.prefabs[ asset_address ];
-                GameObject sfx_ins = Object.Instantiate( sfx_org );
+                Dictionary< int, string > sound_tables = sound_table as Dictionary< int, string >;
+                //0은 bgm
+                sound_tables.Remove( 0 );
+                int i = 0;
+                foreach( var pair in sound_tables )
+                {
+                    string asset_address = pair.Value;
+                    GameObject sfx_org = GameManager.prefabmgr.prefabs[ asset_address ];
+                    GameObject sfx_ins = Object.Instantiate( sfx_org );
 
-                AudioSource sfx_audio_source = sfx_ins.GetComponent< AudioSource >();
-                sfx_ins.SetActive( true );
+                    AudioSource sfx_audio_source = sfx_ins.GetComponent< AudioSource >();
+                    sfx_ins.SetActive( true );
 
-                sfxs.Add( (SFX)i, sfx_audio_source );
+                    sfxs.Add( (SFX)i, sfx_audio_source );
+                    i++;
+                }
             }
+
         }
 
         public void clear()
@@ -70,7 +74,6 @@ namespace game
 
     public enum SFX
     {
-        NONE = 0,
         DAMAGE,
         SWING,
         BULLET,
@@ -82,6 +85,5 @@ namespace game
         BOSSKILL,
         FAIL,
         PCDAMAGE,
-        MAX,
     }
 }
