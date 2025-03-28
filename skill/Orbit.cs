@@ -12,7 +12,7 @@ namespace game
     {
         public float pos_deg;
         public int move_speed;
-        private int knockback_dist = 20;
+        private const int CONST_KNOCKBACK_DIST = 20;
 
         public int attack_tick = 0;
 
@@ -56,13 +56,13 @@ namespace game
                         {
                             if( current_game_time >= next_hit_tick )
                             {
-                                ch.takeDamage( actor.gameObject, knockback_dist );
+                                ch.takeDamage( actor.gameObject, CONST_KNOCKBACK_DIST );
                                 next_hit_ticks[ target_uid ] = current_game_time + attack_tick;
                             }
                         }
                         else
                         {
-                            ch.takeDamage( actor.gameObject, knockback_dist );
+                            ch.takeDamage( actor.gameObject, CONST_KNOCKBACK_DIST );
                             next_hit_ticks.Add( target_uid, current_game_time + attack_tick );
                         }
                     }

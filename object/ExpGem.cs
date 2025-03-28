@@ -1,3 +1,4 @@
+using Cysharp.Threading.Tasks;
 using game;
 using System.Collections;
 using System.Collections.Generic;
@@ -28,13 +29,13 @@ namespace game
                 return;
 
             gen_complete = false;
-            StartCoroutine( "GenerateAni" );
+            GenerateAni().Forget();
         }
 
         /**
         * 생성 되는 순간 튀어나가는 효과를 보이는 이동 코루틴
         **/
-        IEnumerator GenerateAni()
+        async UniTaskVoid GenerateAni()
         {
             //0~359
             int random_spawn_degree = Random.Range( 0, 360 );
@@ -48,7 +49,7 @@ namespace game
             float new_dist = 0f;
             Vector3 new_pos = new Vector3( 0f, 0f, 0f );
 
-            for( ; ; )
+            while( true )
             {
                 current_msec = GameManager.getCurrentGameTime();
                 inverse_lerp = Mathf.InverseLerp( start_time, start_time + 500f, current_msec );
@@ -63,10 +64,10 @@ namespace game
                 if( inverse_lerp >= 1f )
                 {
                     gen_complete = true;
-                    yield break;
+                    return;
                 }
 
-                yield return null;
+                await UniTask.NextFrame();
             }
         }
 

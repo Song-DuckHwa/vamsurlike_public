@@ -136,7 +136,7 @@ namespace game
 
                     SkillDetailData data = new SkillDetailData();
                     data.show_levelup_reward = json[ key ][ "show_levelup_reward" ].ToObject< bool >();
-                    Enum.TryParse( json[ key ][ "usage" ].ToString(), out data.usage );
+                    Enum.TryParse( json[ key ][ "usage" ].ToString().ToUpper(), out data.usage );
                     data.asset_address = json[ key ][ "asset_address" ].ToString();
                     JArray description = (JArray)json[ key ][ "description" ];
                     data.description = description.Select(c => (string)c).ToList();

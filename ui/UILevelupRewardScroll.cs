@@ -1,6 +1,6 @@
+using Cysharp.Threading.Tasks;
 using System.Collections;
 using System.Collections.Generic;
-using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -68,38 +68,39 @@ namespace game
             scroll_rect.velocity = new Vector2( 0f, 5000f );
             //element가 회전 중일 때에는 상호작용을 안해야 한다
             canvas_raycaster.enabled = false;
-            StartCoroutine( ScrollStop() );
+            //StartCoroutine( ScrollStop() );
+            ScrollStop().Forget();
         }
 
         /**
-        * 코루틴으로 프레임별로 체크하면서 특정 속도에 이르렀을때 정확한 위치에 멈추는 애니메이션 실행
+        * unitask로 프레임별로 체크하면서 특정 속도에 이르렀을때 정확한 위치에 멈추는 애니메이션 실행
         **/
-        IEnumerator ScrollStop()
+        public async UniTaskVoid ScrollStop()
         {
-            for( ; ; )
+            while( true )
             {
                 if( scroll_rect.velocity.y < 100 )
                 {
                     scroll_rect.velocity = new Vector2( 0f, 0f );
-                    StartCoroutine( ScrollLastAni() );
-                    yield break;
+                    ScrollLastAni().Forget();
+                    return;
                 }
 
-                yield return null;
+                await UniTask.NextFrame();
             }
         }
 
         /**
         * 스크롤의 속도가 특정 속도 이하로 내려갔을 경우 1씩 움직이며 정확한 위치에서 스톱
         **/
-        IEnumerator ScrollLastAni()
+        public async UniTaskVoid ScrollLastAni()
         {
             int dist = 0;
             int content_pos = (int)Mathf.Round( content.transform.localPosition.y );
             content.transform.localPosition = new Vector2( content.transform.localPosition.x, content_pos );
             dist = (int)button_size - (content_pos % (int)button_size);
 
-            for( ; ; )
+            while( true )
             {
                 dist -= 1;
                 content.transform.localPosition = new Vector2( content.transform.localPosition.x, content.transform.localPosition.y + 1 );
@@ -108,10 +109,10 @@ namespace game
                     //element가 회전 중이 끝났을 때 다시 상호작용 on
                     canvas_raycaster.enabled = true;
                     scroll_rect.vertical = false;
-                    yield break;
+                    return;
                 }
 
-                yield return null;
+                await UniTask.NextFrame();
             }
         }
 
