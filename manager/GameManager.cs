@@ -29,9 +29,6 @@ namespace game
         public MapManager mapmgr_ = new MapManager();
         public static MapManager mapmgr => instance.mapmgr_;
 
-        public Camera main_camera_;
-        public static Camera main_camera => instance.main_camera_;
-
         public PoolManager poolmgr_ = new PoolManager();
         public static PoolManager poolmgr => instance.poolmgr_;
 
@@ -160,8 +157,6 @@ namespace game
                 gamelogic_ = gamelogic_obj.GetComponent< GameLogic >();
                 gamelogic_obj.SetActive( true );
                 gameObject.SetActive( true );
-
-                main_camera_ = Camera.main;
             }
             else
             {
