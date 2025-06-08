@@ -117,7 +117,7 @@ namespace game
         }
 
         /**
-        * 스크롤의 속도가 특정 속도 이하로 내려갔을 경우 1씩 움직이며 정확한 위치에서 스톱
+        * 스크롤이 위 아래로 움직임에 따라 element의 위치를 변경
         **/
         public void OnValueChanged( Vector2 pos )
         {
