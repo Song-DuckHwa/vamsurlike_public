@@ -63,13 +63,9 @@ namespace game
             invincible_time_msec = 0;
         }
 
-        /**
-        * 이동 관련 업데이트
-        **/
-        protected virtual void FixedUpdate()
+        private void Update()
         {
-            //moveWithRigidBody();
-            moveWithoutRigidBody();
+            NpcUpdate();
             rotateAttackDir();
         }
 

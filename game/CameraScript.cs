@@ -17,11 +17,12 @@ namespace game
             offset = new Vector3( 0f, 0f, -10f );
         }
 
-
-        void FixedUpdate()
+        private void Update()
         {
             if( following_obj != null )
+            {
                 transform.position = following_obj.transform.position + offset;
+            }
         }
 
         public void setFollowObject( GameObject obj )

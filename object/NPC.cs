@@ -92,7 +92,12 @@ namespace game
         /**
         * 시간제한이 있는 객체일 경우 라이프타임 관리
         **/
-        protected virtual void Update()
+        private void Update()
+        {
+            NpcUpdate();
+        }
+
+        protected void NpcUpdate()
         {
             if( state != (int)STATE.DEAD && life_time <= 0 )
             {
@@ -107,11 +112,7 @@ namespace game
             {
                 life_time -= (int)(Time.deltaTime * 1000f);
             }
-        }
 
-        private void FixedUpdate()
-        {
-            //moveWithRigidBody();
             switch( state )
             {
                 case (int)STATE.RUN :

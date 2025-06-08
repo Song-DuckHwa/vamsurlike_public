@@ -1,10 +1,5 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
-#if UNITY_EDITOR
-using UnityEditor.Experimental.GraphView;
-#endif
 
 namespace game
 {
@@ -62,6 +57,28 @@ namespace game
         public void equalizingHP()
         {
             current_hp = hp;
+        }
+
+        /*
+         * dpad에서 받은 데이터를 이용하여 캐릭터의 이동 방향을 전달
+         * @value - 버추얼 패드 이동값 데이터 - vector로 옴
+         */
+        private void OnMove( InputValue value )
+        {
+            Vector2 input = value.Get<Vector2>();
+            if( input != null )
+            {
+                if( input == Vector2.zero )
+                {
+                    velocity = 0;
+                    state = (int)STATE.IDLE;
+                    return;
+                }
+
+                direction = new Vector3( input.x, input.y, 0 );
+                velocity = 1;
+                state = (int)STATE.RUN;
+            }
         }
     }
 }
