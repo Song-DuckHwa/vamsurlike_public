@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -17,21 +16,14 @@ namespace game
             repeat_time_msec = 0;
         }
 
-        private void FixedUpdate()
-        {
-            Vector3 dest_vec = direction;
-            dest_vec.Normalize();
-            dest_vec *= move_speed;
-            //프레임 보간
-            dest_vec *= Time.deltaTime;
-
-            transform.Translate( dest_vec );
-        }
-
         private void Update()
         {
             if( GameManager.mainch == null )
+            {
                 return;
+            }
+
+            Move();
 
             Rect camera_rect = new Rect();
             camera_rect.xMin = GameManager.mainch.transform.position.x - GameManager.instance.res_v_half;
@@ -57,7 +49,9 @@ namespace game
                 {
                     //collide mask로 변경해야 함
                     if( hitted_targets[ i ] == actor_uid )
+                    {
                         continue;
+                    }
 
                     Npc ch = GameManager.charmgr.find( hitted_targets[ i ] );
                     if( ch != null )
@@ -74,6 +68,17 @@ namespace game
                     }
                 }
             }
+        }
+
+        private void Move()
+        {
+            Vector3 dest_vec = direction;
+            dest_vec.Normalize();
+            dest_vec *= move_speed;
+            //프레임 보간
+            dest_vec *= Time.deltaTime;
+
+            transform.Translate( dest_vec );
         }
 
         public override bool active()

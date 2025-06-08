@@ -19,21 +19,14 @@ namespace game
         //uid, next tick
         private Dictionary< int, int > next_hit_ticks = new Dictionary< int, int >();
 
-        /**
-        * 공전체의 위치를 계산하여 이동할 포지션 세팅
-        **/
-        private void FixedUpdate()
-        {
-            calcOrbitPos();
-        }
-
-        // Update is called once per frame
         void Update()
         {
             int current_game_time = GameManager.getCurrentGameTime();
             Npc actor = GameManager.charmgr.find( actor_uid );
             if( actor == null )
                 return;
+
+            calcOrbitPos();
 
             List< int > hit_target_uids = GameManager.charmgr.attackCollideCheck( (CircleCollider2D)collider_compo );
             if( hit_target_uids.Count > 0 )
