@@ -1,10 +1,5 @@
 using Cysharp.Threading.Tasks;
-using game;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Pool;
-using static UnityEngine.GraphicsBuffer;
 
 namespace game
 {
@@ -35,8 +30,10 @@ namespace game
         /**
         * 생성 되는 순간 튀어나가는 효과를 보이는 이동 코루틴
         **/
-        async UniTaskVoid GenerateAni()
+        async UniTask GenerateAni()
         {
+            var cts = this.GetCancellationTokenOnDestroy();
+
             //0~359
             int random_spawn_degree = Random.Range( 0, 360 );
             float random_spawn_radian = (float)random_spawn_degree * mathlib.DEG_TO_RAD;
@@ -67,11 +64,10 @@ namespace game
                     return;
                 }
 
-                await UniTask.NextFrame();
+                await UniTask.NextFrame( cts );
             }
         }
 
-        // Update is called once per frame
         void Update()
         {
             //move stop
