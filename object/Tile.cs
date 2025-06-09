@@ -1,15 +1,14 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
-using UnityEngine.EventSystems;
 
 namespace game
 {
     /**
     * OnActionCollideArg
-    * 인게임 안에서 보이는 hud들을 매니징
+    * 타일과 충돌했을 경우 액션
+    * @tile - 충돌한 타일
+    * @quadrant - 충돌한 타일의 사분면
     **/
     public class OnActionCollideArg : EventArgs
     {
@@ -19,7 +18,7 @@ namespace game
 
     /**
     * OnActionTileCollideStart
-    * 인게임 안에서 보이는 hud들을 매니징
+    * 타일에 충돌을 시작했을때 액션
     **/
     public class OnActionTileCollideStart : OnActionCollideArg
     {
@@ -27,7 +26,7 @@ namespace game
 
     /**
     * OnActionTileCollideIng
-    * 인게임 안에서 보이는 hud들을 매니징
+    * 타일에 충돌 시작한 다음의 액션
     **/
     public class OnActionTileCollideIng : OnActionCollideArg
     {
@@ -35,7 +34,7 @@ namespace game
 
     /**
     * OnActionTileCollideEnd
-    * 인게임 안에서 보이는 hud들을 매니징
+    * 타일에서 빠져나갔을때 액션
     **/
     public class OnActionTileCollideEnd : OnActionCollideArg
     {
@@ -47,7 +46,7 @@ namespace game
     **/
     public class Tile : Entity
     {
-        private int collide_state = (int)CollideState.NONE;
+        private CollideState collide_state = CollideState.NONE;
         private int mainpc_quadrant = 0;
 
         public UnityAction< OnActionTileCollideStart > OnCollideStart;
@@ -116,19 +115,19 @@ namespace game
 
                 switch( collide_state )
                 {
-                    case (int)CollideState.NONE :
-                        collide_state = (int)CollideState.START;
+                    case CollideState.NONE :
+                        collide_state = CollideState.START;
                         OnCollideStart?.Invoke( new OnActionTileCollideStart { tile = this, quadrant = chpos_quadrant } );
                         break;
-                    case (int)CollideState.START :
-                    case (int)CollideState.ING :
-                        collide_state = (int)CollideState.ING;
+                    case CollideState.START :
+                    case CollideState.ING :
+                        collide_state = CollideState.ING;
 
                         if( mainpc_quadrant != chpos_quadrant )
                             OnCollideIng?.Invoke( new OnActionTileCollideIng { tile = this, quadrant = chpos_quadrant } );
                         break;
                     default :
-                        collide_state = (int)CollideState.NONE;
+                        collide_state = CollideState.NONE;
                         break;
                 }
 
@@ -138,16 +137,16 @@ namespace game
             {
                 switch( collide_state )
                 {
-                    case (int)CollideState.START :
-                    case (int)CollideState.ING :
-                        collide_state = (int)CollideState.END;
+                    case CollideState.START :
+                    case CollideState.ING :
+                        collide_state = CollideState.END;
                         OnCollideEnd?.Invoke( new OnActionTileCollideEnd { } );
                         break;
-                    case (int)CollideState.END :
-                        collide_state = (int)CollideState.NONE;
+                    case CollideState.END :
+                        collide_state = CollideState.NONE;
                         break;
                     default :
-                        collide_state = (int)CollideState.NONE;
+                        collide_state = CollideState.NONE;
                         break;
                 }
             }
