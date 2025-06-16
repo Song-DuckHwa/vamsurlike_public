@@ -7,6 +7,7 @@
   - unitask
   - input system
   - newton json
+  - dotween
 
 # youtube 주소
 - https://youtu.be/KnZ45NUpr0E
